@@ -632,6 +632,6 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    await epg_service.close_session()
+    await epg_pw_service.close_session()
     client.close()
     logger.info("TV EPG API shutting down...")
