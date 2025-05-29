@@ -56,6 +56,7 @@ class Channel(BaseModel):
     number: str
     name: str
     logo: str
+    logo_url: Optional[str] = None
     programs: List[ChannelProgram] = []
 
 # TVmaze API Service
