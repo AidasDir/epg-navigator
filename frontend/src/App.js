@@ -462,7 +462,7 @@ const App = () => {
           <div 
             className="vertical-now-line" 
             style={{
-              left: `calc(150px + ${getCurrentTimePosition()}% * 6 / 100)`
+              left: `calc(200px + ${getCurrentTimePosition()}% * calc((100% - 200px) / 6))`
             }}
           >
             <div className="now-line-full"></div>
