@@ -302,7 +302,7 @@ async def get_status_checks():
 
 @api_router.get("/channels", response_model=List[Channel])
 async def get_channels(category: str = "All"):
-    """Get channels by category"""
+    """Get channels by category with realistic EPG data"""
     try:
         # Get channels based on category
         if category == "Recent":
@@ -316,11 +316,15 @@ async def get_channels(category: str = "All"):
         if not channels:
             channels = generate_channels_data()
         
-        # Generate EPG data for each channel
+        # Generate realistic EPG data for each channel
         for channel in channels:
-            # Generate realistic EPG data
-            channel.programs = await epg_service.generate_realistic_epg(channel.id, channel.name)
-            logger.info(f"Channel {channel.name} assigned {len(channel.programs)} programs")
+            try:
+                channel.programs = await epg_service.generate_realistic_epg(channel.id, channel.name)
+                logger.info(f"Channel {channel.name} assigned {len(channel.programs)} realistic EPG programs")
+            except Exception as e:
+                logger.error(f"Error generating EPG for channel {channel.name}: {e}")
+                # Fallback to simple realistic programs
+                channel.programs = generate_realistic_programs(channel.id, channel.name)
         
         return channels
         
