@@ -112,16 +112,16 @@ tvmaze_service = TVmazeService()
 def generate_channels_data() -> List[Channel]:
     """Generate realistic channel data with logos"""
     channels_data = [
-        {"id": 1, "number": "2.1", "name": "FOX", "logo": "🦊"},
-        {"id": 2, "number": "4.1", "name": "NBC", "logo": "🦚"},
-        {"id": 3, "number": "7.1", "name": "ABC", "logo": "🔷"},
-        {"id": 4, "number": "11.1", "name": "CBS", "logo": "👁️"},
-        {"id": 5, "number": "13.1", "name": "PBS", "logo": "📚"},
-        {"id": 6, "number": "24.1", "name": "ESPN", "logo": "⚽"},
-        {"id": 7, "number": "32.1", "name": "CNN", "logo": "📺"},
-        {"id": 8, "number": "35.1", "name": "TNT", "logo": "💥"},
-        {"id": 9, "number": "39.1", "name": "TBS", "logo": "😄"},
-        {"id": 10, "number": "42.1", "name": "USA", "logo": "🇺🇸"}
+        {"id": 1, "number": "2.1", "name": "FOX", "logo": "📺", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_Broadcasting_Company_Logo.svg/200px-Fox_Broadcasting_Company_Logo.svg.png"},
+        {"id": 2, "number": "4.1", "name": "NBC", "logo": "🦚", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/NBC_logo.svg/200px-NBC_logo.svg.png"},
+        {"id": 3, "number": "7.1", "name": "ABC", "logo": "🔵", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ABC-2021-LOGO.svg/200px-ABC-2021-LOGO.svg.png"},
+        {"id": 4, "number": "11.1", "name": "CBS", "logo": "👁️", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/CBS_logo.svg/200px-CBS_logo.svg.png"},
+        {"id": 5, "number": "13.1", "name": "PBS", "logo": "📚", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/PBS_logo.svg/200px-PBS_logo.svg.png"},
+        {"id": 6, "number": "24.1", "name": "ESPN", "logo": "⚽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png"},
+        {"id": 7, "number": "32.1", "name": "CNN", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/CNN.svg/200px-CNN.svg.png"},
+        {"id": 8, "number": "35.1", "name": "TNT", "logo": "💥", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/TNT_Logo_2016.svg/200px-TNT_Logo_2016.svg.png"},
+        {"id": 9, "number": "39.1", "name": "TBS", "logo": "😄", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/TBS_logo_2016.svg/200px-TBS_logo_2016.svg.png"},
+        {"id": 10, "number": "42.1", "name": "USA", "logo": "🇺🇸", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/200px-USA_Network_logo_%282016%29.svg.png"}
     ]
     
     return [Channel(**channel) for channel in channels_data]
