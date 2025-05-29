@@ -1,38 +1,386 @@
-.App {
-    text-align: center;
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #000000;
+  color: #FFFFFF;
+  overflow: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.epg-container {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  grid-template-columns: 60px 200px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "icons sidebar main"
+    "icons sidebar main";
+  background: #000000;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+/* Top Left Indicators */
+.top-indicators {
+  position: absolute;
+  top: 20px;
+  left: 280px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 10;
 }
 
-.App-link {
-    color: #61dafb;
+.current-time {
+  font-size: 32px;
+  font-weight: bold;
+  color: #FFFFFF;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.rating-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.rating-badge {
+  background: #1976D2;
+  color: #FFFFFF;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Left Icon Bar */
+.icon-bar {
+  grid-area: icons;
+  background: #1A1A1A;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 25px;
+}
+
+.icon-item {
+  font-size: 20px;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.icon-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Left Sidebar */
+.sidebar {
+  grid-area: sidebar;
+  background: #1A1A1A;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-item {
+  padding: 12px 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 16px;
+}
+
+.sidebar-item.focused {
+  background: #5C6A7B;
+  color: #FFFFFF;
+}
+
+.sidebar-item:hover:not(.focused) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 10px 0;
+}
+
+.sidebar-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Main Content Area */
+.main-content {
+  grid-area: main;
+  background: #000000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Program Detail Panel */
+.program-detail-panel {
+  background: #000000;
+  padding: 80px 30px 30px 30px;
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 200px;
+}
+
+.program-thumbnail {
+  flex-shrink: 0;
+}
+
+.program-thumbnail img {
+  width: 120px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.program-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.program-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.program-meta {
+  font-size: 16px;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.program-description {
+  font-size: 14px;
+  color: #CCCCCC;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Program Grid */
+.program-grid {
+  flex: 1;
+  background: #000000;
+  padding: 20px 30px;
+  overflow: auto;
+}
+
+.time-headers {
+  display: grid;
+  grid-template-columns: 150px repeat(6, 1fr);
+  gap: 2px;
+  margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+  background: #000000;
+  z-index: 5;
+}
+
+.time-header {
+  padding: 10px 15px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.time-header:first-child {
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* Channel Grid */
+.channel-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.channel-row {
+  display: grid;
+  grid-template-columns: 150px repeat(6, 1fr);
+  gap: 2px;
+  align-items: stretch;
+}
+
+.channel-info {
+  background: #000000;
+  padding: 15px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+
+.channel-heart {
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+.channel-number {
+  color: #FFFFFF;
+  font-weight: 500;
+  min-width: 30px;
+}
+
+.channel-logo {
+  font-size: 16px;
+  min-width: 20px;
+}
+
+.channel-name {
+  color: #FFFFFF;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Program Blocks */
+.program-blocks {
+  display: contents;
+}
+
+.program-block {
+  background: #333333;
+  color: #FFFFFF;
+  padding: 15px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.program-block.focused {
+  background: #1976D2;
+  border: 2px solid #1976D2;
+  color: #FFFFFF;
+  transform: scale(1.02);
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.program-block:hover:not(.focused) {
+  background: #444444;
+}
+
+.program-title {
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+  text-align: left;
+}
+
+.program-rating {
+  font-size: 12px;
+  color: #FFFFFF;
+  margin-left: 8px;
+}
+
+/* Loading Screen */
+.loading-screen {
+  height: 100vh;
+  width: 100vw;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-text {
+  font-size: 24px;
+  color: #1976D2;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .epg-container {
+    grid-template-columns: 50px 180px 1fr;
+  }
+  
+  .sidebar {
+    padding: 15px 10px;
+  }
+  
+  .sidebar-item {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  
+  .program-detail-panel {
+    padding: 60px 20px 20px 20px;
+    min-height: 160px;
+  }
+  
+  .program-title {
+    font-size: 24px;
+  }
+  
+  .current-time {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 800px) {
+  .epg-container {
+    grid-template-columns: 40px 150px 1fr;
+  }
+  
+  .icon-item {
+    font-size: 16px;
+    padding: 6px;
+  }
+  
+  .time-headers {
+    grid-template-columns: 120px repeat(6, 1fr);
+  }
+  
+  .channel-row {
+    grid-template-columns: 120px repeat(6, 1fr);
+  }
+  
+  .channel-info {
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+  
+  .program-block {
+    padding: 12px 8px;
+  }
+  
+  .program-title {
+    font-size: 12px;
+  }
 }
