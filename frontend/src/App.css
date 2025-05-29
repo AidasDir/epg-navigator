@@ -486,9 +486,12 @@ body {
   min-width: 0;
 }
 
-/* Program Blocks */
-.program-blocks {
-  display: contents;
+/* Program Blocks Container */
+.program-blocks-container {
+  position: relative;
+  height: 60px;
+  width: calc(100% - 150px); /* Account for channel info column */
+  margin-left: 0;
 }
 
 /* Program Blocks Container */
