@@ -146,10 +146,12 @@ body {
   gap: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   min-height: 200px;
+  position: relative;
 }
 
 .program-thumbnail {
   flex-shrink: 0;
+  position: relative;
 }
 
 .program-thumbnail img {
@@ -159,11 +161,70 @@ body {
   object-fit: cover;
 }
 
+.live-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #FF4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: livePulse 1.5s infinite;
+}
+
+@keyframes livePulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 .program-details {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.channel-info-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.channel-logo-large {
+  height: 30px;
+  width: auto;
+  max-width: 60px;
+  object-fit: contain;
+}
+
+.channel-name-large {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1976D2;
+}
+
+.channel-number-large {
+  font-size: 16px;
+  color: #CCCCCC;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 .program-title {
@@ -177,6 +238,19 @@ body {
   font-size: 16px;
   color: #FFFFFF;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.live-badge {
+  background: #FF4444;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  animation: livePulse 1.5s infinite;
 }
 
 .program-description {
