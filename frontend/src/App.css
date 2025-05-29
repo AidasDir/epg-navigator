@@ -339,7 +339,7 @@ body {
 
 .time-headers {
   display: grid;
-  grid-template-columns: 200px repeat(12, 1fr);
+  grid-template-columns: 200px repeat(16, 1fr);
   gap: 1px;
   margin-bottom: 10px;
   position: sticky;
