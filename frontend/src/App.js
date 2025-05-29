@@ -300,11 +300,30 @@ const App = () => {
                     e.target.src = `https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=120&h=80&fit=crop&crop=center`;
                   }}
                 />
+                {isCurrentlyAiring(selectedProgram) && (
+                  <div className="live-indicator">
+                    <span className="live-dot"></span>
+                    LIVE
+                  </div>
+                )}
               </div>
               <div className="program-details">
+                <div className="channel-info-header">
+                  <img 
+                    src={getCurrentChannel().logo_url} 
+                    alt={getCurrentChannel().name}
+                    className="channel-logo-large"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span className="channel-name-large">{getCurrentChannel().name}</span>
+                  <span className="channel-number-large">{getCurrentChannel().number}</span>
+                </div>
                 <h1 className="program-title">{selectedProgram.title}</h1>
                 <div className="program-meta">
                   {selectedProgram.episode} | {selectedProgram.title} | {formatTime(selectedProgram.startTime)} - {formatTime(selectedProgram.endTime)}
+                  {isCurrentlyAiring(selectedProgram) && <span className="live-badge">● LIVE NOW</span>}
                 </div>
                 <p className="program-description">{selectedProgram.description}</p>
               </div>
