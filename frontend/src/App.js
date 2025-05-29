@@ -305,12 +305,16 @@ const App = () => {
 
   const getTimeHeaders = () => {
     const headers = ['Today'];
-    const baseTime = new Date();
-    baseTime.setMinutes(0, 0, 0);
+    const now = new Date();
     
-    // Generate 6 hours of programming with 30-minute intervals (12 slots total)
-    for (let i = 0; i < 12; i++) {
-      const time = new Date(baseTime.getTime() + (i * 30 * 60 * 1000)); // 30-minute intervals
+    // Start timeline 3 hours before current time to show recent programs
+    const startTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+    startTime.setMinutes(0, 0, 0); // Round down to the hour
+    
+    // Generate 8 hours of programming with 30-minute intervals (16 slots total)
+    // This covers 3 hours past + current time + 5 hours future
+    for (let i = 0; i < 16; i++) {
+      const time = new Date(startTime.getTime() + (i * 30 * 60 * 1000)); // 30-minute intervals
       headers.push(formatTimeSimple(time));
     }
     return headers;
@@ -318,14 +322,16 @@ const App = () => {
 
   const getCurrentTimePosition = () => {
     const now = new Date();
-    const baseTime = new Date();
+    
+    // Calculate base time (3 hours before current time, rounded to hour)
+    const baseTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
     baseTime.setMinutes(0, 0, 0);
     
     const minutesSinceStart = (now - baseTime) / (1000 * 60); // Total minutes since start
-    const totalMinutesInView = 6 * 60; // 6 hours = 360 minutes
+    const totalMinutesInView = 8 * 60; // 8 hours = 480 minutes
     
-    // Calculate percentage within the 6-hour view
-    const percentage = Math.min((minutesSinceStart / totalMinutesInView) * 100, 100);
+    // Calculate percentage within the 8-hour view
+    const percentage = Math.min(Math.max((minutesSinceStart / totalMinutesInView) * 100, 0), 100);
     
     return percentage;
   };
@@ -336,20 +342,21 @@ const App = () => {
     
     // Calculate minutes from base time
     const startMinutes = Math.max(0, (programStart - baseTime) / (1000 * 60));
-    const endMinutes = Math.min(360, (programEnd - baseTime) / (1000 * 60)); // Cap at 6 hours
+    const endMinutes = Math.min(480, (programEnd - baseTime) / (1000 * 60)); // Cap at 8 hours
     
-    // Convert to percentage of the 6-hour view
-    const startPercent = (startMinutes / 360) * 100;
-    const widthPercent = ((endMinutes - startMinutes) / 360) * 100;
+    // Convert to percentage of the 8-hour view
+    const startPercent = (startMinutes / 480) * 100;
+    const widthPercent = ((endMinutes - startMinutes) / 480) * 100;
     
     return {
       left: `${startPercent}%`,
-      width: `${Math.max(widthPercent, 2)}%` // Minimum 2% width for visibility
+      width: `${Math.max(widthPercent, 1.5)}%` // Minimum 1.5% width for visibility
     };
   };
 
   const getGridBaseTime = () => {
-    const baseTime = new Date();
+    const now = new Date();
+    const baseTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
     baseTime.setMinutes(0, 0, 0);
     return baseTime;
   };
