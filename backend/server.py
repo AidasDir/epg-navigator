@@ -489,12 +489,12 @@ async def get_channels():
             if channel.epg_channel_id:
                 logger.info(f"Fetching EPG data for {channel.name} (ID: {channel.epg_channel_id})")
                 
-                # Get EPG data from epg.pw
-                epg_data = await epg_pw_service.get_epg_data(channel.epg_channel_id, today)
+                # Get EPG data from epg.pw (XML format)
+                xml_data = await epg_pw_service.get_epg_data(channel.epg_channel_id, today)
                 
-                if epg_data:
-                    # Convert EPG data to programs
-                    programs = await epg_pw_service.convert_epg_to_programs(epg_data, channel.id)
+                if xml_data:
+                    # Convert EPG XML data to programs
+                    programs = await epg_pw_service.convert_epg_to_programs(xml_data, channel.id)
                     
                     if programs:
                         # Sort programs by start time and limit to next 8 hours
