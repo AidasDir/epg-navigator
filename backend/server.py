@@ -224,6 +224,7 @@ def get_channels_by_category(category: str):
         return tv_channels
     else:
         return all_channels
+# API Routes
 @api_router.get("/")
 async def root():
     return {"message": "TV EPG API"}
@@ -241,8 +242,8 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 @api_router.get("/channels", response_model=List[Channel])
-async def get_channels():
-    """Get all channels with their current programming"""
+async def get_channels(category: str = "All"):
+    """Get channels by category"""
     try:
         # Get today's schedule from TVmaze
         today = datetime.now().strftime("%Y-%m-%d")
@@ -250,8 +251,17 @@ async def get_channels():
         
         logger.info(f"Fetched {len(schedule_entries)} schedule entries from TVmaze")
         
-        # Get base channel data
-        channels = generate_channels_data()
+        # Get channels based on category
+        if category == "Recent":
+            channels = get_recent_channels()
+        elif category == "Favorites":
+            channels = get_favorite_channels()
+        else:
+            channels = get_channels_by_category(category)
+        
+        # If no channels in category, fallback to all channels
+        if not channels:
+            channels = generate_channels_data()
         
         if schedule_entries and len(schedule_entries) > 0:
             # Process real TVmaze data
@@ -305,10 +315,54 @@ async def get_channels():
     except Exception as e:
         logger.error(f"Error getting channels: {e}")
         # Return channels with realistic sample data as fallback
-        channels = generate_channels_data()
+        if category == "Recent":
+            channels = get_recent_channels()
+        elif category == "Favorites":
+            channels = get_favorite_channels()
+        else:
+            channels = get_channels_by_category(category)
+            
+        if not channels:
+            channels = generate_channels_data()
+            
         for channel in channels:
             channel.programs = generate_realistic_programs(channel.id, channel.name)
         return channels
+
+@api_router.post("/channels/{channel_id}/favorite")
+async def toggle_channel_favorite(channel_id: int):
+    """Toggle favorite status for a channel"""
+    try:
+        is_favorite = toggle_favorite(channel_id)
+        return {
+            "channel_id": channel_id,
+            "is_favorite": is_favorite,
+            "message": f"Channel {'added to' if is_favorite else 'removed from'} favorites"
+        }
+    except Exception as e:
+        logger.error(f"Error toggling favorite for channel {channel_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error updating favorites")
+
+@api_router.post("/channels/{channel_id}/recent")
+async def mark_channel_recent(channel_id: int):
+    """Mark a channel as recently viewed"""
+    try:
+        add_to_recent(channel_id)
+        return {
+            "channel_id": channel_id,
+            "message": "Channel added to recent list"
+        }
+    except Exception as e:
+        logger.error(f"Error adding channel {channel_id} to recent: {e}")
+        raise HTTPException(status_code=500, detail="Error updating recent channels")
+
+@api_router.get("/favorites")
+async def get_user_favorites():
+    """Get list of user's favorite channel IDs"""
+    return {
+        "favorite_channels": list(user_favorites),
+        "count": len(user_favorites)
+    }
 
 async def convert_schedule_to_programs(schedule_entries) -> Dict[int, List[ChannelProgram]]:
     """Convert TVmaze schedule entries to channel programs"""
