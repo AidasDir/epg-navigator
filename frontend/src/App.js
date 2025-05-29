@@ -336,6 +336,22 @@ const App = () => {
     return percentage;
   };
 
+  const getCurrentTimePositionInGrid = () => {
+    const now = new Date();
+    
+    // Calculate base time (3 hours before current time, rounded to hour)
+    const baseTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+    baseTime.setMinutes(0, 0, 0);
+    
+    const minutesSinceStart = (now - baseTime) / (1000 * 60); // Total minutes since start
+    const totalMinutesInView = 8 * 60; // 8 hours = 480 minutes
+    
+    // Calculate percentage within the program grid area (excluding channel info column)
+    const percentage = Math.min(Math.max((minutesSinceStart / totalMinutesInView) * 100, 0), 100);
+    
+    return percentage;
+  };
+
   const getProgramPosition = (program, baseTime) => {
     const programStart = new Date(program.startTime);
     const programEnd = new Date(program.endTime);
