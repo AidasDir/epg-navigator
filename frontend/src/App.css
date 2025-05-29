@@ -386,8 +386,42 @@ body {
 }
 
 .channel-heart {
-  color: #FFFFFF;
+  background: none;
+  border: none;
+  color: #666666;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.channel-heart:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.channel-heart.favorited {
+  color: #FF4444;
+  animation: heartBeat 0.3s ease-in-out;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.favorite-star {
+  color: #FFD700;
   font-size: 12px;
+  margin-left: 8px;
+  animation: starTwinkle 2s infinite;
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .channel-number {
