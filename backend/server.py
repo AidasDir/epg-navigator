@@ -98,7 +98,7 @@ class EPGService:
             return []
     
     async def generate_realistic_epg(self, channel_id: int, channel_name: str):
-        """Generate realistic EPG data for a channel"""
+        """Generate realistic EPG data for a channel with varied timing"""
         programs = []
         base_time = datetime.now().replace(minute=0, second=0, microsecond=0)
         
@@ -129,14 +129,63 @@ class EPGService:
         
         program_titles = programming_templates.get(channel_type, programming_templates["entertainment"])
         
-        for i in range(6):  # 6 hours of programming
-            start_time = base_time + timedelta(hours=i)
-            # Vary program duration: 30 min, 1 hour, or 2 hours
-            duration_options = [30, 60, 120]
-            duration = duration_options[i % len(duration_options)]
+        # Generate programs with realistic start times and durations
+        current_time = base_time
+        program_index = 0
+        
+        # Generate 6 hours worth of programming with varied durations
+        end_time_limit = base_time + timedelta(hours=6)
+        
+        while current_time < end_time_limit and program_index < 12:  # Max 12 programs
+            # Realistic duration patterns based on channel type
+            if channel_type == "news":
+                # News: 30 min, 60 min programs
+                duration_options = [30, 60] 
+                # News often starts at :00 or :30
+                minute_starts = [0, 30]
+            elif channel_type == "sports":
+                # Sports: 30 min, 90 min, 180 min (games can be long)
+                duration_options = [30, 90, 180]
+                minute_starts = [0, 30]
+            elif channel_type == "kids":
+                # Kids: 15 min, 30 min, 60 min
+                duration_options = [15, 30, 60]
+                minute_starts = [0, 15, 30, 45]
+            elif channel_type == "entertainment":
+                # Entertainment: 30 min, 60 min, 120 min (movies)
+                duration_options = [30, 60, 120]
+                minute_starts = [0, 30]
+            else:
+                # Documentary/Lifestyle: 30 min, 60 min, 90 min
+                duration_options = [30, 60, 90]
+                minute_starts = [0, 30]
+            
+            # Choose duration for this program
+            duration = duration_options[program_index % len(duration_options)]
+            
+            # Adjust start time to realistic TV scheduling
+            if program_index == 0:
+                # First program starts at the base time
+                start_time = current_time
+            else:
+                # Subsequent programs start when previous ended, but adjust to realistic minute marks
+                preferred_minute = minute_starts[program_index % len(minute_starts)]
+                start_time = current_time.replace(minute=preferred_minute)
+                
+                # If the preferred minute has passed, move to next hour
+                if start_time <= current_time:
+                    start_time = start_time + timedelta(hours=1)
+            
             end_time = start_time + timedelta(minutes=duration)
             
-            title = program_titles[i % len(program_titles)]
+            # Don't exceed our 6-hour window
+            if end_time > end_time_limit:
+                end_time = end_time_limit
+                duration = int((end_time - start_time).total_seconds() / 60)
+                if duration < 15:  # Skip very short programs
+                    break
+            
+            title = program_titles[program_index % len(program_titles)]
             
             # Create realistic descriptions
             descriptions = {
@@ -151,9 +200,9 @@ class EPGService:
             description = descriptions.get(title, f"Watch {title} on {channel_name}. Quality programming with engaging content.")
             
             program = ChannelProgram(
-                id=f"epg_{channel_id}_{i}",
+                id=f"epg_{channel_id}_{program_index}",
                 title=title,
-                episode=f"Season {2024 + (i % 3)} Episode {i + 1}" if channel_type in ["entertainment", "kids"] else None,
+                episode=f"Season {2024 + (program_index % 3)} Episode {program_index + 1}" if channel_type in ["entertainment", "kids"] else None,
                 start_time=start_time,
                 end_time=end_time,
                 description=description,
@@ -163,6 +212,10 @@ class EPGService:
                 genre=channel_type.title()
             )
             programs.append(program)
+            
+            # Move to next program start time
+            current_time = end_time
+            program_index += 1
         
         return programs
 
