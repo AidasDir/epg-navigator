@@ -338,6 +338,12 @@ const App = () => {
             {getTimeHeaders().map((time, index) => (
               <div key={index} className="time-header">
                 {time}
+                {index === 1 && (
+                  <div className="current-time-indicator" style={{left: `${getCurrentTimePosition()}%`}}>
+                    <div className="time-line"></div>
+                    <div className="time-marker">NOW</div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -350,7 +356,18 @@ const App = () => {
                 <div className="channel-info">
                   <span className="channel-heart">♥</span>
                   <span className="channel-number">{channel.number}</span>
-                  <span className="channel-logo">{channel.logo}</span>
+                  <div className="channel-logo-container">
+                    <img 
+                      src={channel.logo_url} 
+                      alt={channel.name}
+                      className="channel-logo-image"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'inline';
+                      }}
+                    />
+                    <span className="channel-logo-fallback" style={{display: 'none'}}>{channel.logo}</span>
+                  </div>
                   <span className="channel-name">{channel.name}</span>
                 </div>
 
@@ -363,10 +380,11 @@ const App = () => {
                         focusedSection === 'grid' && 
                         gridFocus.channel === channelIndex && 
                         gridFocus.program === programIndex ? 'focused' : ''
-                      }`}
+                      } ${isCurrentlyAiring(program) ? 'currently-airing' : ''}`}
                     >
                       <div className="program-title">{program.title}</div>
                       {program.rating && <div className="program-rating">⬛</div>}
+                      {isCurrentlyAiring(program) && <div className="live-indicator-small">●</div>}
                     </div>
                   ))}
                 </div>
