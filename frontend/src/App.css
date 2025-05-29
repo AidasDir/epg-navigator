@@ -301,6 +301,39 @@ body {
 /* Vertical NOW Line */
 .vertical-now-line {
   position: absolute;
+  top: 60px; /* Start below time headers */
+  bottom: 20px;
+  width: 2px;
+  pointer-events: none;
+  z-index: 15;
+  margin-left: 150px; /* Account for channel info column width */
+}
+
+.now-line-full {
+  width: 100%;
+  height: 100%;
+  background: #FF4444;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+}
+
+.now-marker-top {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FF4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+}
+
+/* Vertical NOW Line */
+.vertical-now-line {
+  position: absolute;
   top: 20px;
   bottom: 20px;
   width: 2px;
