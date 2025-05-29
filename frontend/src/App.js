@@ -214,7 +214,7 @@ const App = () => {
     
     for (let i = 0; i < 6; i++) {
       const time = new Date(baseTime.getTime() + (i * 60 * 60 * 1000));
-      headers.push(formatTime(time));
+      headers.push(formatTimeSimple(time));
     }
     return headers;
   };
