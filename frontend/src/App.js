@@ -383,9 +383,15 @@ const App = () => {
               key={index}
               className={`sidebar-item ${
                 focusedSection === 'sidebar' && sidebarFocus === index ? 'focused' : ''
+              } ${
+                (item === currentCategory || (item === 'Favorites ❤️' && currentCategory === 'Favorites')) ? 'active' : ''
               }`}
+              onClick={() => handleTabSwitch(index)}
             >
               {item}
+              {item === 'Favorites ❤️' && favorites.size > 0 && (
+                <span className="favorite-count">({favorites.size})</span>
+              )}
             </div>
           ))}
         </div>
@@ -393,6 +399,10 @@ const App = () => {
         <div className="sidebar-options">
           <div className="sidebar-item">Sort by A-Z</div>
           <div className="sidebar-item">Jump To Day</div>
+        </div>
+        <div className="sidebar-help">
+          <div className="help-text">Press F to favorite current channel</div>
+          <div className="help-text">Press Enter to select</div>
         </div>
       </div>
 
