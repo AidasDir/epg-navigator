@@ -126,39 +126,7 @@ def generate_channels_data() -> List[Channel]:
     
     return [Channel(**channel) for channel in channels_data]
 
-def generate_sample_programs(channel_id: int) -> List[ChannelProgram]:
-    """Generate sample programs for fallback"""
-    programs = []
-    base_time = datetime.now().replace(minute=0, second=0, microsecond=0)
-    
-    program_titles = [
-        "Morning News", "Talk Show", "Game Show", "Drama Series", 
-        "Reality TV", "Comedy Show", "Documentary", "Movie"
-    ]
-    
-    for i in range(6):  # 6 hours of programming
-        start_time = base_time + timedelta(hours=i)
-        end_time = start_time + timedelta(hours=1)
-        
-        title = program_titles[i % len(program_titles)]
-        if i == 0:  # Make first program special
-            title = "The Jennifer Hudson Show"
-        
-        program = ChannelProgram(
-            id=f"sample_{channel_id}_{i}",
-            title=title,
-            episode=f"S3 E{98 + i}" if i == 0 else f"S1 E{i + 1}",
-            start_time=start_time,
-            end_time=end_time,
-            description=f"Description for {title}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            image=f"https://via.placeholder.com/120x80/1976D2/FFFFFF?text={title[0]}{title.split()[-1][0] if len(title.split()) > 1 else ''}",
-            rating="R" if i == 0 else None,
-            channel_id=channel_id,
-            genre="Talk Show" if i == 0 else "General"
-        )
-        programs.append(program)
-    
-    return programs
+
 
 # API Routes
 @api_router.get("/")
