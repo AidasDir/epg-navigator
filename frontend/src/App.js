@@ -13,6 +13,8 @@ const App = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentCategory, setCurrentCategory] = useState('All');
+  const [favorites, setFavorites] = useState(new Set());
 
   const sidebarItems = [
     'All', 'Recent', 'Favorites ❤️', 'Sports', 'Kids', 'Movies', 'TV Shows'
