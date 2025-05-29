@@ -277,67 +277,88 @@ class EPGPWService:
             logger.error(f"Error fetching EPG XML data for channel {channel_id}: {e}")
             return ""
     
-    async def convert_epg_to_programs(self, epg_data: dict, channel_id: int) -> List[ChannelProgram]:
-        """Convert EPG.PW data to ChannelProgram objects"""
+    async def convert_epg_to_programs(self, xml_data: str, channel_id: int) -> List[ChannelProgram]:
+        """Convert EPG.PW XML data to ChannelProgram objects"""
         programs = []
         
-        # EPG.PW returns data in format: {"epg_list": [...], "name": "Channel Name", ...}
-        epg_list = epg_data.get('epg_list', [])
+        if not xml_data:
+            return programs
         
-        for entry in epg_list:
-            try:
-                # Parse start time from format "20250529100000 +0000"
-                start_str = entry.get('start_date', '')
-                title = entry.get('title', 'Unknown Program')
-                description = entry.get('desc', 'No description available')
-                
-                if start_str:
-                    # Parse the datetime string "20250529100000 +0000"
-                    datetime_part = start_str.split(' ')[0]  # Get "20250529100000"
-                    year = int(datetime_part[:4])
-                    month = int(datetime_part[4:6])
-                    day = int(datetime_part[6:8])
-                    hour = int(datetime_part[8:10])
-                    minute = int(datetime_part[10:12])
-                    second = int(datetime_part[12:14])
+        try:
+            import xml.etree.ElementTree as ET
+            
+            # Parse XML
+            root = ET.fromstring(xml_data)
+            
+            # Find all programme elements
+            programmes = root.findall('programme')
+            
+            for programme in programmes:
+                try:
+                    # Get start and stop times
+                    start_str = programme.get('start', '')  # "20250529000000 +0000"
+                    stop_str = programme.get('stop', '')    # "20250529003000 +0000"
                     
-                    # Create datetime in UTC then convert to Eastern
-                    start_time_utc = datetime(year, month, day, hour, minute, second, tzinfo=pytz.UTC)
-                    start_time = start_time_utc.astimezone(pytz.timezone('America/New_York'))
+                    # Get title and description
+                    title_elem = programme.find('title')
+                    desc_elem = programme.find('desc')
                     
-                    # Estimate end time (most TV shows are 30-60 minutes)
-                    if 'news' in title.lower() or 'live:' in title.lower():
-                        duration_minutes = 60  # News shows are typically 1 hour
-                    elif 'friends' in title.lower():
-                        duration_minutes = 180  # Morning shows are longer
-                    else:
-                        duration_minutes = 60  # Default 1 hour
+                    title = title_elem.text if title_elem is not None else 'Unknown Program'
+                    description = desc_elem.text if desc_elem is not None else 'No description available'
                     
-                    end_time = start_time + timedelta(minutes=duration_minutes)
-                    
-                    # Extract episode info if available
-                    episode = None
-                    if 'Live:' in title:
-                        title = title.replace('Live: ', '')
-                    
-                    # Create program
-                    program = ChannelProgram(
-                        id=f"epgpw_{channel_id}_{start_str}",
-                        title=title,
-                        episode=episode,
-                        start_time=start_time,
-                        end_time=end_time,
-                        description=description,
-                        image=None,  # EPG.PW doesn't provide images in this endpoint
-                        rating=None,
-                        channel_id=channel_id,
-                        genre='News' if 'news' in title.lower() else 'General'
-                    )
-                    programs.append(program)
-                    
-            except Exception as e:
-                logger.error(f"Error processing EPG entry: {e}")
-                continue
+                    if start_str and stop_str:
+                        # Parse start time "20250529000000 +0000"
+                        start_datetime_part = start_str.split(' ')[0]  # Get "20250529000000"
+                        start_year = int(start_datetime_part[:4])
+                        start_month = int(start_datetime_part[4:6])
+                        start_day = int(start_datetime_part[6:8])
+                        start_hour = int(start_datetime_part[8:10])
+                        start_minute = int(start_datetime_part[10:12])
+                        start_second = int(start_datetime_part[12:14])
+                        
+                        # Parse stop time "20250529003000 +0000"
+                        stop_datetime_part = stop_str.split(' ')[0]  # Get "20250529003000"
+                        stop_year = int(stop_datetime_part[:4])
+                        stop_month = int(stop_datetime_part[4:6])
+                        stop_day = int(stop_datetime_part[6:8])
+                        stop_hour = int(stop_datetime_part[8:10])
+                        stop_minute = int(stop_datetime_part[10:12])
+                        stop_second = int(stop_datetime_part[12:14])
+                        
+                        # Create datetime objects in UTC then convert to Eastern
+                        start_time_utc = datetime(start_year, start_month, start_day, start_hour, start_minute, start_second, tzinfo=pytz.UTC)
+                        stop_time_utc = datetime(stop_year, stop_month, stop_day, stop_hour, stop_minute, stop_second, tzinfo=pytz.UTC)
+                        
+                        start_time = start_time_utc.astimezone(pytz.timezone('America/New_York'))
+                        end_time = stop_time_utc.astimezone(pytz.timezone('America/New_York'))
+                        
+                        # Clean up title
+                        if 'Live:' in title:
+                            title = title.replace('Live: ', '')
+                        
+                        # Create program
+                        program = ChannelProgram(
+                            id=f"epgpw_{channel_id}_{start_str}",
+                            title=title,
+                            episode=None,
+                            start_time=start_time,
+                            end_time=end_time,
+                            description=description,
+                            image=None,  # EPG.PW doesn't provide images in XML
+                            rating=None,
+                            channel_id=channel_id,
+                            genre='News' if 'news' in title.lower() else 'General'
+                        )
+                        programs.append(program)
+                        
+                except Exception as e:
+                    logger.error(f"Error processing XML programme entry: {e}")
+                    continue
+            
+            logger.info(f"Parsed {len(programs)} programs from XML for channel {channel_id}")
+            
+        except Exception as e:
+            logger.error(f"Error parsing EPG XML data: {e}")
         
         return programs
 
