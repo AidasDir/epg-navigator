@@ -164,7 +164,66 @@ def generate_channels_data() -> List[Channel]:
 
 
 
-# API Routes
+# In-memory storage for user preferences (in production, use database)
+user_favorites = set()  # Set of channel IDs
+user_recent = []  # List of channel IDs in order of recent access
+
+def get_recent_channels():
+    """Get recently viewed channels (last 8 channels)"""
+    all_channels = generate_channels_data()
+    channel_dict = {ch.id: ch for ch in all_channels}
+    
+    recent_channels = []
+    for channel_id in user_recent[-8:]:  # Last 8 recent channels
+        if channel_id in channel_dict:
+            recent_channels.append(channel_dict[channel_id])
+    
+    return recent_channels
+
+def get_favorite_channels():
+    """Get user's favorite channels"""
+    all_channels = generate_channels_data()
+    return [ch for ch in all_channels if ch.id in user_favorites]
+
+def add_to_recent(channel_id: int):
+    """Add channel to recent list"""
+    global user_recent
+    # Remove if already exists
+    if channel_id in user_recent:
+        user_recent.remove(channel_id)
+    # Add to beginning
+    user_recent.insert(0, channel_id)
+    # Keep only last 20 entries
+    user_recent = user_recent[:20]
+
+def toggle_favorite(channel_id: int) -> bool:
+    """Toggle channel favorite status. Returns True if now favorite, False if removed"""
+    global user_favorites
+    if channel_id in user_favorites:
+        user_favorites.remove(channel_id)
+        return False
+    else:
+        user_favorites.add(channel_id)
+        return True
+
+def get_channels_by_category(category: str):
+    """Get channels filtered by category"""
+    all_channels = generate_channels_data()
+    
+    if category == "Sports":
+        sports_channels = [ch for ch in all_channels if ch.name in ["ESPN", "ESPN2", "FS1", "NFL Network"]]
+        return sports_channels
+    elif category == "Kids":
+        kids_channels = [ch for ch in all_channels if ch.name in ["Disney Channel", "Nickelodeon", "Cartoon Network"]]
+        return kids_channels
+    elif category == "Movies":
+        movie_channels = [ch for ch in all_channels if ch.name in ["HBO", "Showtime", "Starz", "AMC", "TNT", "TBS"]]
+        return movie_channels
+    elif category == "TV Shows":
+        tv_channels = [ch for ch in all_channels if ch.name in ["FOX", "NBC", "ABC", "CBS", "USA", "FX", "Bravo"]]
+        return tv_channels
+    else:
+        return all_channels
 @api_router.get("/")
 async def root():
     return {"message": "TV EPG API"}
