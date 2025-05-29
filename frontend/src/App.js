@@ -347,17 +347,22 @@ const App = () => {
 
         {/* Program Guide Grid */}
         <div className="program-grid">
+          {/* Vertical NOW Line */}
+          <div 
+            className="vertical-now-line" 
+            style={{
+              left: `calc(150px + ${getCurrentTimePosition()}% * 6 / 100)`
+            }}
+          >
+            <div className="now-line-full"></div>
+            <div className="now-marker-top">NOW</div>
+          </div>
+
           {/* Time Headers */}
           <div className="time-headers">
             {getTimeHeaders().map((time, index) => (
               <div key={index} className="time-header">
                 {time}
-                {index === 1 && (
-                  <div className="current-time-indicator" style={{left: `${getCurrentTimePosition()}%`}}>
-                    <div className="time-line"></div>
-                    <div className="time-marker">NOW</div>
-                  </div>
-                )}
               </div>
             ))}
           </div>
