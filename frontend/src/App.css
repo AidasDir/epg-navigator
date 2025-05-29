@@ -377,12 +377,14 @@ body {
 
 .channel-info {
   background: #000000;
-  padding: 15px 10px;
+  padding: 15px 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: #FFFFFF;
   font-size: 14px;
+  min-width: 200px;
+  overflow: hidden;
 }
 
 .channel-heart {
@@ -394,6 +396,7 @@ body {
   transition: all 0.2s;
   padding: 4px;
   border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .channel-heart:hover {
@@ -417,6 +420,7 @@ body {
   font-size: 12px;
   margin-left: 8px;
   animation: starTwinkle 2s infinite;
+  flex-shrink: 0;
 }
 
 @keyframes starTwinkle {
@@ -427,20 +431,23 @@ body {
 .channel-number {
   color: #FFFFFF;
   font-weight: 500;
-  min-width: 30px;
+  min-width: 35px;
+  flex-shrink: 0;
+  font-size: 12px;
 }
 
 .channel-logo-container {
-  min-width: 40px;
-  height: 24px;
+  min-width: 45px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .channel-logo-image {
-  max-height: 24px;
-  max-width: 40px;
+  max-height: 28px;
+  max-width: 45px;
   object-fit: contain;
 }
 
@@ -452,6 +459,11 @@ body {
   color: #FFFFFF;
   font-weight: 500;
   flex: 1;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Program Blocks */
