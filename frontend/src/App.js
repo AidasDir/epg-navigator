@@ -205,6 +205,26 @@ const App = () => {
     return headers;
   };
 
+  const getCurrentTimePosition = () => {
+    const now = new Date();
+    const baseTime = new Date();
+    baseTime.setMinutes(0, 0, 0);
+    
+    const minutesSinceHour = now.getMinutes();
+    const percentage = (minutesSinceHour / 60) * 100;
+    
+    return percentage;
+  };
+
+  const isCurrentlyAiring = (program) => {
+    const now = new Date();
+    return program.startTime <= now && program.endTime > now;
+  };
+
+  const getCurrentChannel = () => {
+    return channels[gridFocus.channel] || channels[0];
+  };
+
   if (loading) {
     return (
       <div className="loading-screen">
