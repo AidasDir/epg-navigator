@@ -492,14 +492,16 @@ body {
 .program-block {
   background: #333333;
   color: #FFFFFF;
-  padding: 15px 12px;
+  padding: 8px 10px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
   border: 2px solid transparent;
-  position: relative;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  min-height: 56px;
 }
 
 .program-block.focused {
@@ -507,7 +509,7 @@ body {
   border: 2px solid #1976D2;
   color: #FFFFFF;
   transform: scale(1.02);
-  z-index: 2;
+  z-index: 3;
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
 }
 
@@ -523,25 +525,42 @@ body {
 
 .program-block:hover:not(.focused) {
   background: #444444;
+  transform: scale(1.01);
 }
 
 .program-title {
-  font-size: 14px;
-  font-weight: 500;
-  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.program-time {
+  font-size: 10px;
+  color: #CCCCCC;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .program-rating {
-  font-size: 12px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
   color: #FFFFFF;
-  margin-left: 8px;
 }
 
 .live-indicator-small {
+  position: absolute;
+  top: 4px;
+  right: 16px;
   color: #4CAF50;
-  font-size: 12px;
-  margin-left: 8px;
+  font-size: 10px;
   animation: livePulse 1.5s infinite;
 }
 
