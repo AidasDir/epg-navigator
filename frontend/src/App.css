@@ -325,44 +325,11 @@ body {
   font-size: 14px;
   font-weight: 500;
   text-align: center;
-  position: relative;
 }
 
 .time-header:first-child {
   text-align: left;
   padding-left: 20px;
-}
-
-.current-time-indicator {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.time-line {
-  width: 2px;
-  height: 100%;
-  background: #FF4444;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
-}
-
-.time-marker {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #FF4444;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: bold;
-  white-space: nowrap;
 }
 
 /* Channel Grid */
