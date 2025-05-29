@@ -405,6 +405,10 @@ const App = () => {
     return Math.max(minutesFromStart * pixelsPerMinute, 0);
   };
 
+  const getCurrentChannel = () => {
+    return channels[gridFocus.channel] || channels[0];
+  };
+
   if (loading) {
     return (
       <div className="loading-screen">
