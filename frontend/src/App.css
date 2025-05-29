@@ -611,6 +611,24 @@ body {
   .current-time {
     font-size: 28px;
   }
+
+  .time-headers {
+    grid-template-columns: 180px repeat(6, 1fr);
+  }
+  
+  .channel-row {
+    grid-template-columns: 180px repeat(6, 1fr);
+  }
+  
+  .channel-info {
+    min-width: 180px;
+    padding: 12px 8px;
+    gap: 8px;
+  }
+  
+  .channel-name {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 800px) {
@@ -624,16 +642,37 @@ body {
   }
   
   .time-headers {
-    grid-template-columns: 120px repeat(6, 1fr);
+    grid-template-columns: 150px repeat(6, 1fr);
   }
   
   .channel-row {
-    grid-template-columns: 120px repeat(6, 1fr);
+    grid-template-columns: 150px repeat(6, 1fr);
   }
   
   .channel-info {
-    padding: 12px 8px;
+    min-width: 150px;
+    padding: 10px 6px;
     font-size: 12px;
+    gap: 6px;
+  }
+  
+  .channel-number {
+    min-width: 30px;
+    font-size: 11px;
+  }
+  
+  .channel-logo-container {
+    min-width: 35px;
+    height: 24px;
+  }
+  
+  .channel-logo-image {
+    max-height: 24px;
+    max-width: 35px;
+  }
+  
+  .channel-name {
+    font-size: 11px;
   }
   
   .program-block {
