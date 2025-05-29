@@ -331,38 +331,7 @@ body {
   box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
 }
 
-/* Vertical NOW Line */
-.vertical-now-line {
-  position: absolute;
-  top: 20px;
-  bottom: 20px;
-  width: 2px;
-  z-index: 15;
-  pointer-events: none;
-}
 
-.now-line-full {
-  width: 2px;
-  height: 100%;
-  background: #FF4444;
-  box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
-  animation: nowLinePulse 2s infinite;
-}
-
-.now-marker-top {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #FF4444;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: bold;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
-}
 
 @keyframes nowLinePulse {
   0% { opacity: 1; }
