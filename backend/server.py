@@ -100,16 +100,20 @@ class EPGService:
     async def generate_realistic_epg(self, channel_id: int, channel_name: str):
         """Generate realistic EPG data for a channel with varied timing"""
         programs = []
-        base_time = datetime.now().replace(minute=0, second=0, microsecond=0)
+        
+        # Start EPG 3 hours before current time to show recent programs
+        now = datetime.now()
+        base_time = now - timedelta(hours=3)
+        base_time = base_time.replace(minute=0, second=0, microsecond=0)  # Round to hour
         
         # Channel-specific programming templates
         programming_templates = {
-            "news": ["Morning News", "Midday Update", "Evening Headlines", "Night Report", "Breaking News", "Weather Update"],
-            "sports": ["SportsCenter", "Live Game", "Sports Analysis", "Highlights", "Press Conference", "Sports Talk"],
-            "entertainment": ["Movie Premiere", "Drama Series", "Reality Show", "Talk Show", "Comedy Special", "Late Night"],
-            "kids": ["Morning Cartoons", "Educational Show", "Animation Movie", "Kids Game Show", "Learning Time", "Bedtime Stories"],
-            "documentary": ["Nature Documentary", "History Special", "Science Explorer", "Travel Guide", "Biography", "Investigation"],
-            "lifestyle": ["Cooking Show", "Home Improvement", "Fashion Week", "Health & Wellness", "DIY Projects", "Garden Life"]
+            "news": ["Breaking News", "Morning News", "Midday Update", "Evening Headlines", "Night Report", "Weather Update", "Live Coverage", "News Analysis"],
+            "sports": ["Sports News", "SportsCenter", "Live Game", "Sports Analysis", "Highlights", "Press Conference", "Sports Talk", "Game Replay"],
+            "entertainment": ["Comedy Show", "Movie Premiere", "Drama Series", "Reality Show", "Talk Show", "Comedy Special", "Late Night", "Variety Show"],
+            "kids": ["Educational Show", "Morning Cartoons", "Animation Movie", "Kids Game Show", "Learning Time", "Bedtime Stories", "Adventure Time", "Family Movie"],
+            "documentary": ["Wildlife Special", "Nature Documentary", "History Special", "Science Explorer", "Travel Guide", "Biography", "Investigation", "Planet Earth"],
+            "lifestyle": ["Morning Show", "Cooking Show", "Home Improvement", "Fashion Week", "Health & Wellness", "DIY Projects", "Garden Life", "Design Tips"]
         }
         
         # Determine channel type based on name
@@ -133,10 +137,10 @@ class EPGService:
         current_time = base_time
         program_index = 0
         
-        # Generate 6 hours worth of programming with varied durations
-        end_time_limit = base_time + timedelta(hours=6)
+        # Generate 8 hours worth of programming (3 hours past + 5 hours future)
+        end_time_limit = base_time + timedelta(hours=8)
         
-        while current_time < end_time_limit and program_index < 12:  # Max 12 programs
+        while current_time < end_time_limit and program_index < 16:  # Max 16 programs
             # Realistic duration patterns based on channel type
             if channel_type == "news":
                 # News: 30 min, 60 min programs
@@ -145,7 +149,7 @@ class EPGService:
                 minute_starts = [0, 30]
             elif channel_type == "sports":
                 # Sports: 30 min, 90 min, 180 min (games can be long)
-                duration_options = [30, 90, 180]
+                duration_options = [30, 90, 120, 180]
                 minute_starts = [0, 30]
             elif channel_type == "kids":
                 # Kids: 15 min, 30 min, 60 min
@@ -153,7 +157,7 @@ class EPGService:
                 minute_starts = [0, 15, 30, 45]
             elif channel_type == "entertainment":
                 # Entertainment: 30 min, 60 min, 120 min (movies)
-                duration_options = [30, 60, 120]
+                duration_options = [30, 60, 90, 120]
                 minute_starts = [0, 30]
             else:
                 # Documentary/Lifestyle: 30 min, 60 min, 90 min
@@ -178,7 +182,7 @@ class EPGService:
             
             end_time = start_time + timedelta(minutes=duration)
             
-            # Don't exceed our 6-hour window
+            # Don't exceed our 8-hour window
             if end_time > end_time_limit:
                 end_time = end_time_limit
                 duration = int((end_time - start_time).total_seconds() / 60)
@@ -189,12 +193,15 @@ class EPGService:
             
             # Create realistic descriptions
             descriptions = {
-                "Morning News": "Start your day with the latest headlines, weather forecast, and breaking news from around the world.",
+                "Breaking News": "Latest breaking news coverage with live reports from correspondents around the world.",
                 "SportsCenter": "Comprehensive sports coverage featuring highlights, analysis, and breaking sports news.",
                 "Movie Premiere": "Blockbuster movie premiere featuring action, drama, and entertainment for the whole family.",
                 "Morning Cartoons": "Fun-filled animated adventures perfect for kids to start their day with laughter.",
                 "Nature Documentary": "Explore the wonders of the natural world with stunning wildlife photography and expert narration.",
-                "Cooking Show": "Learn culinary techniques and delicious recipes from professional chefs and cooking experts."
+                "Cooking Show": "Learn culinary techniques and delicious recipes from professional chefs and cooking experts.",
+                "Comedy Show": "Hilarious comedy entertainment featuring stand-up performances and comedic sketches.",
+                "Live Game": "Live sports coverage with expert commentary and in-depth analysis of the game.",
+                "Reality Show": "Unscripted reality television featuring real people in dramatic and entertaining situations."
             }
             
             description = descriptions.get(title, f"Watch {title} on {channel_name}. Quality programming with engaging content.")
