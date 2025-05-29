@@ -227,6 +227,95 @@ class EPGService:
         
         return programs
 
+# EPG.PW API Service
+class EPGPWService:
+    def __init__(self):
+        self.base_url = "https://epg.pw/api"
+        self.session = None
+    
+    async def get_session(self):
+        if self.session is None:
+            self.session = httpx.AsyncClient(
+                timeout=httpx.Timeout(30.0),
+                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
+                headers={
+                    'User-Agent': 'TV-EPG-App/1.0'
+                }
+            )
+        return self.session
+    
+    async def close_session(self):
+        if self.session:
+            await self.session.aclose()
+    
+    async def get_epg_data(self, channel_id: int, date: str = None) -> List[dict]:
+        """Get EPG data for a specific channel and date from epg.pw"""
+        session = await self.get_session()
+        
+        if date is None:
+            date = datetime.now().strftime("%Y%m%d")
+        
+        try:
+            url = f"{self.base_url}/epg.json"
+            params = {
+                "lang": "en",
+                "date": date,
+                "channel_id": channel_id
+            }
+            
+            response = await session.get(url, params=params)
+            
+            if response.status_code == 200:
+                epg_data = response.json()
+                logger.info(f"Fetched {len(epg_data)} programs for channel {channel_id} on {date}")
+                return epg_data
+            else:
+                logger.error(f"EPG.PW API error: {response.status_code} for channel {channel_id}")
+                return []
+                
+        except Exception as e:
+            logger.error(f"Error fetching EPG data for channel {channel_id}: {e}")
+            return []
+    
+    async def convert_epg_to_programs(self, epg_data: List[dict], channel_id: int) -> List[ChannelProgram]:
+        """Convert EPG.PW data to ChannelProgram objects"""
+        programs = []
+        
+        for entry in epg_data:
+            try:
+                # Parse start and end times
+                start_str = entry.get('start_timestamp', '')
+                duration = entry.get('duration', 3600)  # Default 1 hour
+                
+                if start_str:
+                    # Convert timestamp to datetime
+                    start_time = datetime.fromtimestamp(int(start_str), tz=pytz.timezone('America/New_York'))
+                    end_time = start_time + timedelta(seconds=duration)
+                    
+                    # Create program
+                    program = ChannelProgram(
+                        id=f"epgpw_{entry.get('id', 'unknown')}_{channel_id}",
+                        title=entry.get('title', 'Unknown Program'),
+                        episode=entry.get('episode', ''),
+                        start_time=start_time,
+                        end_time=end_time,
+                        description=entry.get('description', 'No description available'),
+                        image=entry.get('icon', None),
+                        rating=entry.get('rating', None),
+                        channel_id=channel_id,
+                        genre=entry.get('category', 'General')
+                    )
+                    programs.append(program)
+                    
+            except Exception as e:
+                logger.error(f"Error processing EPG entry: {e}")
+                continue
+        
+        return programs
+
+# Initialize EPG.PW service
+epg_pw_service = EPGPWService()
+
 # Initialize EPG service
 epg_service = EPGService()
 
