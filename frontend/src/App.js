@@ -308,8 +308,9 @@ const App = () => {
     const baseTime = new Date();
     baseTime.setMinutes(0, 0, 0);
     
-    for (let i = 0; i < 6; i++) {
-      const time = new Date(baseTime.getTime() + (i * 60 * 60 * 1000));
+    // Generate 6 hours of programming with 30-minute intervals (12 slots total)
+    for (let i = 0; i < 12; i++) {
+      const time = new Date(baseTime.getTime() + (i * 30 * 60 * 1000)); // 30-minute intervals
       headers.push(formatTimeSimple(time));
     }
     return headers;
@@ -317,18 +318,40 @@ const App = () => {
 
   const getCurrentTimePosition = () => {
     const now = new Date();
-    const currentHour = now.getHours();
-    const currentMinutes = now.getMinutes();
-    const currentSeconds = now.getSeconds();
+    const baseTime = new Date();
+    baseTime.setMinutes(0, 0, 0);
     
-    // Calculate total seconds since the start of current hour
-    const totalSecondsInHour = (currentMinutes * 60) + currentSeconds;
-    const totalSecondsPerHour = 60 * 60; // 3600 seconds
+    const minutesSinceStart = (now - baseTime) / (1000 * 60); // Total minutes since start
+    const totalMinutesInView = 6 * 60; // 6 hours = 360 minutes
     
-    // Calculate percentage within current hour (0-100%)
-    const percentage = (totalSecondsInHour / totalSecondsPerHour) * 100;
+    // Calculate percentage within the 6-hour view
+    const percentage = Math.min((minutesSinceStart / totalMinutesInView) * 100, 100);
     
     return percentage;
+  };
+
+  const getProgramPosition = (program, baseTime) => {
+    const programStart = new Date(program.startTime);
+    const programEnd = new Date(program.endTime);
+    
+    // Calculate minutes from base time
+    const startMinutes = Math.max(0, (programStart - baseTime) / (1000 * 60));
+    const endMinutes = Math.min(360, (programEnd - baseTime) / (1000 * 60)); // Cap at 6 hours
+    
+    // Convert to percentage of the 6-hour view
+    const startPercent = (startMinutes / 360) * 100;
+    const widthPercent = ((endMinutes - startMinutes) / 360) * 100;
+    
+    return {
+      left: `${startPercent}%`,
+      width: `${Math.max(widthPercent, 2)}%` // Minimum 2% width for visibility
+    };
+  };
+
+  const getGridBaseTime = () => {
+    const baseTime = new Date();
+    baseTime.setMinutes(0, 0, 0);
+    return baseTime;
   };
 
   const isCurrentlyAiring = (program) => {
