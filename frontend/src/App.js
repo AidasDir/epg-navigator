@@ -382,8 +382,27 @@ const App = () => {
     return program.startTime <= now && program.endTime > now;
   };
 
-  const getCurrentChannel = () => {
-    return channels[gridFocus.channel] || channels[0];
+  const calculateProgramWidth = (program) => {
+    if (!program.startTime || !program.endTime) return 200; // Default width
+    
+    const duration = (program.endTime - program.startTime) / (1000 * 60); // Duration in minutes
+    const pixelsPerMinute = 4; // 4 pixels per minute (adjustable)
+    const minWidth = 60; // Minimum width for readability
+    
+    return Math.max(duration * pixelsPerMinute, minWidth);
+  };
+
+  const calculateProgramPosition = (program) => {
+    if (!program.startTime) return 0;
+    
+    // Calculate base time (3 hours before current time, rounded to hour)
+    const baseTime = new Date(new Date().getTime() - (3 * 60 * 60 * 1000));
+    baseTime.setMinutes(0, 0, 0);
+    
+    const minutesFromStart = (program.startTime - baseTime) / (1000 * 60);
+    const pixelsPerMinute = 4; // Same as width calculation
+    
+    return Math.max(minutesFromStart * pixelsPerMinute, 0);
   };
 
   if (loading) {
