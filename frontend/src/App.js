@@ -274,10 +274,10 @@ const App = () => {
             <>
               <div className="program-thumbnail">
                 <img 
-                  src={selectedProgram.image || 'https://via.placeholder.com/120x80/1976D2/FFFFFF?text=TV'} 
+                  src={selectedProgram.image || `https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=120&h=80&fit=crop&crop=center`} 
                   alt={selectedProgram.title}
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/120x80/1976D2/FFFFFF?text=TV';
+                    e.target.src = `https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=120&h=80&fit=crop&crop=center`;
                   }}
                 />
               </div>
