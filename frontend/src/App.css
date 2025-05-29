@@ -339,26 +339,42 @@ body {
 
 .time-headers {
   display: grid;
-  grid-template-columns: 200px repeat(6, 1fr);
-  gap: 2px;
+  grid-template-columns: 200px repeat(12, 1fr);
+  gap: 1px;
   margin-bottom: 10px;
   position: sticky;
   top: 0;
   background: #000000;
   z-index: 5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .time-header {
-  padding: 10px 15px;
+  padding: 8px 10px;
   color: #FFFFFF;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .time-header:first-child {
   text-align: left;
   padding-left: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.time-header:nth-child(odd):not(:first-child) {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: bold;
+}
+
+.time-header:nth-child(even):not(:first-child) {
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 11px;
+  color: #CCCCCC;
 }
 
 /* Channel Grid */
