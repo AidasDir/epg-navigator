@@ -189,7 +189,21 @@ const App = () => {
 
   useEffect(() => {
     fetchChannels();
-  }, [fetchChannels]);
+    fetchFavorites();
+  }, [fetchChannels, fetchFavorites]);
+
+  // Handle tab switching
+  const handleTabSwitch = (tabIndex) => {
+    const category = sidebarItems[tabIndex];
+    let categoryName = category;
+    
+    // Handle special categories
+    if (category === 'Favorites ❤️') {
+      categoryName = 'Favorites';
+    }
+    
+    fetchChannels(categoryName);
+  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -247,12 +261,31 @@ const App = () => {
             updateSelectedProgram(gridFocus.channel, Math.min(maxPrograms - 1, gridFocus.program + 1));
           }
           break;
+          
+        case 'Enter':
+          e.preventDefault();
+          if (focusedSection === 'sidebar') {
+            handleTabSwitch(sidebarFocus);
+          } else if (focusedSection === 'grid' && channels[gridFocus.channel]) {
+            // Mark current channel as recently viewed
+            markAsRecent(channels[gridFocus.channel].id);
+          }
+          break;
+          
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          if (focusedSection === 'grid' && channels[gridFocus.channel]) {
+            // Toggle favorite for current channel
+            toggleFavorite(channels[gridFocus.channel].id);
+          }
+          break;
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [focusedSection, sidebarFocus, gridFocus, channels]);
+  }, [focusedSection, sidebarFocus, gridFocus, channels, sidebarItems]);
 
   const updateSelectedProgram = (channelIndex, programIndex) => {
     if (channels[channelIndex] && channels[channelIndex].programs[programIndex]) {
