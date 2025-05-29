@@ -317,11 +317,16 @@ const App = () => {
 
   const getCurrentTimePosition = () => {
     const now = new Date();
-    const baseTime = new Date();
-    baseTime.setMinutes(0, 0, 0);
+    const currentHour = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const currentSeconds = now.getSeconds();
     
-    const minutesSinceHour = now.getMinutes();
-    const percentage = (minutesSinceHour / 60) * 100;
+    // Calculate total seconds since the start of current hour
+    const totalSecondsInHour = (currentMinutes * 60) + currentSeconds;
+    const totalSecondsPerHour = 60 * 60; // 3600 seconds
+    
+    // Calculate percentage within current hour (0-100%)
+    const percentage = (totalSecondsInHour / totalSecondsPerHour) * 100;
     
     return percentage;
   };
