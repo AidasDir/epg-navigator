@@ -485,7 +485,7 @@ const App = () => {
           <div 
             className="vertical-now-line" 
             style={{
-              left: `calc(200px + ${getCurrentTimePosition()}% * calc((100% - 200px) / 6))`
+              left: `calc(200px + ${getCurrentTimePosition()}% * calc((100% - 200px)))`
             }}
           >
             <div className="now-line-full"></div>
@@ -531,22 +531,35 @@ const App = () => {
                   {favorites.has(channel.id) && <span className="favorite-star">⭐</span>}
                 </div>
 
-                {/* Program Blocks */}
-                <div className="program-blocks">
-                  {channel.programs.map((program, programIndex) => (
-                    <div
-                      key={program.id}
-                      className={`program-block ${
-                        focusedSection === 'grid' && 
-                        gridFocus.channel === channelIndex && 
-                        gridFocus.program === programIndex ? 'focused' : ''
-                      } ${isCurrentlyAiring(program) ? 'currently-airing' : ''}`}
-                    >
-                      <div className="program-title">{program.title}</div>
-                      {program.rating && <div className="program-rating">⬛</div>}
-                      {isCurrentlyAiring(program) && <div className="live-indicator-small">●</div>}
-                    </div>
-                  ))}
+                {/* Program Blocks Container */}
+                <div className="program-blocks-container">
+                  {channel.programs.map((program, programIndex) => {
+                    const position = getProgramPosition(program, getGridBaseTime());
+                    return (
+                      <div
+                        key={program.id}
+                        className={`program-block ${
+                          focusedSection === 'grid' && 
+                          gridFocus.channel === channelIndex && 
+                          gridFocus.program === programIndex ? 'focused' : ''
+                        } ${isCurrentlyAiring(program) ? 'currently-airing' : ''}`}
+                        style={{
+                          position: 'absolute',
+                          left: position.left,
+                          width: position.width,
+                          top: '0',
+                          height: '100%'
+                        }}
+                      >
+                        <div className="program-title">{program.title}</div>
+                        <div className="program-time">
+                          {formatTimeSimple(program.startTime)} - {formatTimeSimple(program.endTime)}
+                        </div>
+                        {program.rating && <div className="program-rating">⬛</div>}
+                        {isCurrentlyAiring(program) && <div className="live-indicator-small">●</div>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
