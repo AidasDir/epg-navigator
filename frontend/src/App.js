@@ -9,7 +9,7 @@ const App = () => {
   
   // Data state
   const [channels, setChannels] = useState([]);
-  const [currentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,6 +19,15 @@ const App = () => {
   ];
 
   const iconBarIcons = ['🔍', '🏠', '📺', '▶️', '⚙️', '💾', '🔄'];
+
+  // Live clock update
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Fetch channels data from backend
   const fetchChannels = useCallback(async () => {
