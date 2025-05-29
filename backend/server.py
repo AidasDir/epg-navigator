@@ -20,10 +20,6 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# TVmaze API configuration
-TVMAZE_API_KEY = os.environ.get('TVMAZE_API_KEY')
-TVMAZE_BASE_URL = "https://api.tvmaze.com"
-
 # Create the main app without a prefix
 app = FastAPI()
 
@@ -59,22 +55,23 @@ class Channel(BaseModel):
     logo_url: Optional[str] = None
     programs: List[ChannelProgram] = []
 
-# TVmaze API Service
-class TVmazeService:
+# EPG and Channel Management Service
+class EPGService:
     def __init__(self):
-        self.base_url = TVMAZE_BASE_URL
-        self.api_key = TVMAZE_API_KEY
         self.session = None
+        # IPTV-org community channel sources
+        self.channels_url = "https://iptv-org.github.io/api/channels.json"
+        self.guides_url = "https://iptv-org.github.io/api/guides.json"
+        # Alternative EPG sources
+        self.epg_sources = [
+            "https://xmltv.org/",  # XMLTV format
+            "https://epg.streamlab.live/",  # Community EPG
+        ]
     
     async def get_session(self):
         if self.session is None:
-            headers = {}
-            if self.api_key:
-                headers["Authorization"] = f"Bearer {self.api_key}"
-            
             self.session = httpx.AsyncClient(
                 timeout=httpx.Timeout(30.0),
-                headers=headers,
                 limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
             )
         return self.session
@@ -83,31 +80,94 @@ class TVmazeService:
         if self.session:
             await self.session.aclose()
     
-    async def get_schedule(self, country: str = "US", date: str = None):
-        """Get TV schedule for a specific date and country"""
+    async def fetch_iptv_channels(self):
+        """Fetch channel list from IPTV-org community"""
         session = await self.get_session()
         
-        if date is None:
-            date = datetime.now().strftime("%Y-%m-%d")
-        
         try:
-            response = await session.get(f"{self.base_url}/schedule", params={
-                "country": country,
-                "date": date
-            })
-            
+            response = await session.get(self.channels_url)
             if response.status_code == 200:
-                schedule_data = response.json()
-                return schedule_data[:50]  # Limit to 50 entries
+                channels_data = response.json()
+                logger.info(f"Fetched {len(channels_data)} channels from IPTV-org")
+                return channels_data[:100]  # Limit to first 100 channels
             else:
-                logger.error(f"TVmaze API error: {response.status_code}")
+                logger.error(f"IPTV-org API error: {response.status_code}")
                 return []
         except Exception as e:
-            logger.error(f"Error fetching schedule: {e}")
+            logger.error(f"Error fetching IPTV channels: {e}")
             return []
+    
+    async def generate_realistic_epg(self, channel_id: int, channel_name: str):
+        """Generate realistic EPG data for a channel"""
+        programs = []
+        base_time = datetime.now().replace(minute=0, second=0, microsecond=0)
+        
+        # Channel-specific programming templates
+        programming_templates = {
+            "news": ["Morning News", "Midday Update", "Evening Headlines", "Night Report", "Breaking News", "Weather Update"],
+            "sports": ["SportsCenter", "Live Game", "Sports Analysis", "Highlights", "Press Conference", "Sports Talk"],
+            "entertainment": ["Movie Premiere", "Drama Series", "Reality Show", "Talk Show", "Comedy Special", "Late Night"],
+            "kids": ["Morning Cartoons", "Educational Show", "Animation Movie", "Kids Game Show", "Learning Time", "Bedtime Stories"],
+            "documentary": ["Nature Documentary", "History Special", "Science Explorer", "Travel Guide", "Biography", "Investigation"],
+            "lifestyle": ["Cooking Show", "Home Improvement", "Fashion Week", "Health & Wellness", "DIY Projects", "Garden Life"]
+        }
+        
+        # Determine channel type based on name
+        channel_type = "entertainment"  # default
+        channel_lower = channel_name.lower()
+        
+        if any(word in channel_lower for word in ["news", "cnn", "bbc", "fox news", "msnbc"]):
+            channel_type = "news"
+        elif any(word in channel_lower for word in ["espn", "sports", "fs1", "nfl", "nba"]):
+            channel_type = "sports"
+        elif any(word in channel_lower for word in ["disney", "nick", "cartoon", "kids"]):
+            channel_type = "kids"
+        elif any(word in channel_lower for word in ["discovery", "history", "national geographic", "nature"]):
+            channel_type = "documentary"
+        elif any(word in channel_lower for word in ["food", "hgtv", "lifestyle", "cooking"]):
+            channel_type = "lifestyle"
+        
+        program_titles = programming_templates.get(channel_type, programming_templates["entertainment"])
+        
+        for i in range(6):  # 6 hours of programming
+            start_time = base_time + timedelta(hours=i)
+            # Vary program duration: 30 min, 1 hour, or 2 hours
+            duration_options = [30, 60, 120]
+            duration = duration_options[i % len(duration_options)]
+            end_time = start_time + timedelta(minutes=duration)
+            
+            title = program_titles[i % len(program_titles)]
+            
+            # Create realistic descriptions
+            descriptions = {
+                "Morning News": "Start your day with the latest headlines, weather forecast, and breaking news from around the world.",
+                "SportsCenter": "Comprehensive sports coverage featuring highlights, analysis, and breaking sports news.",
+                "Movie Premiere": "Blockbuster movie premiere featuring action, drama, and entertainment for the whole family.",
+                "Morning Cartoons": "Fun-filled animated adventures perfect for kids to start their day with laughter.",
+                "Nature Documentary": "Explore the wonders of the natural world with stunning wildlife photography and expert narration.",
+                "Cooking Show": "Learn culinary techniques and delicious recipes from professional chefs and cooking experts."
+            }
+            
+            description = descriptions.get(title, f"Watch {title} on {channel_name}. Quality programming with engaging content.")
+            
+            program = ChannelProgram(
+                id=f"epg_{channel_id}_{i}",
+                title=title,
+                episode=f"Season {2024 + (i % 3)} Episode {i + 1}" if channel_type in ["entertainment", "kids"] else None,
+                start_time=start_time,
+                end_time=end_time,
+                description=description,
+                image=None,  # Will be populated with real images
+                rating="TV-14" if channel_type in ["news", "documentary"] else "TV-PG",
+                channel_id=channel_id,
+                genre=channel_type.title()
+            )
+            programs.append(program)
+        
+        return programs
 
-# Initialize TVmaze service
-tvmaze_service = TVmazeService()
+# Initialize EPG service
+epg_service = EPGService()
 
 # Channel data generation
 def generate_channels_data() -> List[Channel]:
@@ -161,8 +221,6 @@ def generate_channels_data() -> List[Channel]:
     ]
     
     return [Channel(**channel) for channel in channels_data]
-
-
 
 # In-memory storage for user preferences (in production, use database)
 user_favorites = set()  # Set of channel IDs
@@ -224,6 +282,7 @@ def get_channels_by_category(category: str):
         return tv_channels
     else:
         return all_channels
+
 # API Routes
 @api_router.get("/")
 async def root():
@@ -245,12 +304,6 @@ async def get_status_checks():
 async def get_channels(category: str = "All"):
     """Get channels by category"""
     try:
-        # Get today's schedule from TVmaze
-        today = datetime.now().strftime("%Y-%m-%d")
-        schedule_entries = await tvmaze_service.get_schedule(country="US", date=today)
-        
-        logger.info(f"Fetched {len(schedule_entries)} schedule entries from TVmaze")
-        
         # Get channels based on category
         if category == "Recent":
             channels = get_recent_channels()
@@ -263,52 +316,11 @@ async def get_channels(category: str = "All"):
         if not channels:
             channels = generate_channels_data()
         
-        if schedule_entries and len(schedule_entries) > 0:
-            # Process real TVmaze data
-            channel_programs = await convert_schedule_to_programs(schedule_entries)
-            
-            # Populate programs for each channel
-            for channel in channels:
-                if channel.id in channel_programs and len(channel_programs[channel.id]) > 0:
-                    # Sort programs by start time and limit to 6 hours
-                    programs = sorted(channel_programs[channel.id], key=lambda p: p.start_time)
-                    channel.programs = programs[:6]
-                    logger.info(f"Channel {channel.name} assigned {len(channel.programs)} real programs")
-                else:
-                    # If no real data for this channel, assign some real shows from other channels
-                    all_real_programs = []
-                    for ch_programs in channel_programs.values():
-                        all_real_programs.extend(ch_programs)
-                    
-                    if all_real_programs:
-                        # Take programs and modify them for this channel
-                        selected_programs = all_real_programs[:(6)]
-                        channel.programs = []
-                        for i, prog in enumerate(selected_programs):
-                            # Create new program for this channel
-                            new_program = ChannelProgram(
-                                id=f"adapted_{channel.id}_{i}",
-                                title=prog.title,
-                                episode=prog.episode,
-                                start_time=prog.start_time,
-                                end_time=prog.end_time,
-                                description=prog.description,
-                                image=prog.image,
-                                rating=prog.rating,
-                                channel_id=channel.id,
-                                genre=prog.genre
-                            )
-                            channel.programs.append(new_program)
-                        logger.info(f"Channel {channel.name} assigned {len(channel.programs)} adapted real programs")
-                    else:
-                        # Last resort: generate sample programs with real-looking data
-                        channel.programs = generate_realistic_programs(channel.id, channel.name)
-                        logger.info(f"Channel {channel.name} assigned {len(channel.programs)} realistic sample programs")
-        else:
-            logger.warning("No real data from TVmaze, using realistic sample data")
-            # Generate realistic sample data for each channel
-            for channel in channels:
-                channel.programs = generate_realistic_programs(channel.id, channel.name)
+        # Generate EPG data for each channel
+        for channel in channels:
+            # Generate realistic EPG data
+            channel.programs = await epg_service.generate_realistic_epg(channel.id, channel.name)
+            logger.info(f"Channel {channel.name} assigned {len(channel.programs)} programs")
         
         return channels
         
@@ -363,104 +375,6 @@ async def get_user_favorites():
         "favorite_channels": list(user_favorites),
         "count": len(user_favorites)
     }
-
-async def convert_schedule_to_programs(schedule_entries) -> Dict[int, List[ChannelProgram]]:
-    """Convert TVmaze schedule entries to channel programs"""
-    channel_programs = {}
-    
-    # Network to channel mapping
-    network_mapping = {
-        "FOX": 1, "Fox": 1, "FOX Broadcasting Company": 1,
-        "NBC": 2, "National Broadcasting Company": 2,
-        "ABC": 3, "American Broadcasting Company": 3,
-        "CBS": 4, "Columbia Broadcasting System": 4,
-        "PBS": 5, "Public Broadcasting Service": 5,
-        "ESPN": 6,
-        "CNN": 7, "Cable News Network": 7,
-        "TNT": 8, "Turner Network Television": 8,
-        "TBS": 9, "Turner Broadcasting System": 9,
-        "USA": 10, "USA Network": 10
-    }
-    
-    for entry in schedule_entries:
-        try:
-            # Extract show information
-            show_info = entry.get('show', {})
-            network_info = show_info.get('network', {}) or show_info.get('webChannel', {})
-            network_name = network_info.get('name', 'Unknown') if network_info else 'Unknown'
-            
-            # Determine channel based on network
-            channel_id = None
-            for network, ch_id in network_mapping.items():
-                if network.lower() in network_name.lower():
-                    channel_id = ch_id
-                    break
-            
-            if not channel_id:
-                # Distribute unknown networks across channels
-                channel_id = (hash(network_name) % 10) + 1
-            
-            # Parse air time
-            airstamp = entry.get('airstamp')
-            if airstamp:
-                try:
-                    # Parse the airstamp (ISO format)
-                    air_datetime = datetime.fromisoformat(airstamp.replace('Z', '+00:00'))
-                    air_datetime = air_datetime.replace(tzinfo=pytz.UTC)
-                    
-                    # Convert to Eastern time (common for US TV)
-                    eastern_tz = pytz.timezone('America/New_York')
-                    local_time = air_datetime.astimezone(eastern_tz)
-                    
-                    # Calculate end time
-                    runtime = entry.get('runtime') or show_info.get('runtime') or 60
-                    end_time = local_time + timedelta(minutes=runtime)
-                    
-                    # Get image URL
-                    image_info = entry.get('image') or show_info.get('image', {})
-                    image_url = None
-                    if image_info:
-                        image_url = image_info.get('medium') or image_info.get('original')
-                    
-                    # Clean up summary
-                    summary = entry.get('summary') or show_info.get('summary', '')
-                    if summary:
-                        # Remove HTML tags
-                        import re
-                        summary = re.sub(r'<[^>]+>', '', summary)
-                        summary = summary.strip()
-                    else:
-                        summary = f"Watch {entry.get('name', 'this program')} on {network_name}."
-                    
-                    # Create program
-                    program = ChannelProgram(
-                        id=f"tvmaze_{entry.get('id', 'unknown')}",
-                        title=entry.get('name', 'Unknown Show'),
-                        episode=f"S{entry.get('season', 1)} E{entry.get('number', 1)}" if entry.get('season') and entry.get('number') else None,
-                        start_time=local_time,
-                        end_time=end_time,
-                        description=summary,
-                        image=image_url,
-                        rating=None,  # TVmaze doesn't provide content ratings consistently
-                        channel_id=channel_id,
-                        genre=show_info.get('genres', ['General'])[0] if show_info.get('genres') else 'General'
-                    )
-                    
-                    if channel_id not in channel_programs:
-                        channel_programs[channel_id] = []
-                    
-                    channel_programs[channel_id].append(program)
-                    
-                except Exception as parse_error:
-                    logger.error(f"Error parsing schedule entry {entry.get('id')}: {parse_error}")
-                    continue
-            
-        except Exception as e:
-            logger.error(f"Error processing schedule entry: {e}")
-            continue
-    
-    logger.info(f"Mapped programs to {len(channel_programs)} channels")
-    return channel_programs
 
 def generate_realistic_programs(channel_id: int, channel_name: str) -> List[ChannelProgram]:
     """Generate realistic programs based on channel type"""
@@ -581,6 +495,6 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    await tvmaze_service.close_session()
+    await epg_service.close_session()
     client.close()
     logger.info("TV EPG API shutting down...")
