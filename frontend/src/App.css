@@ -370,7 +370,7 @@ body {
 
 .channel-row {
   display: grid;
-  grid-template-columns: 150px repeat(6, 1fr);
+  grid-template-columns: 200px repeat(6, 1fr);
   gap: 2px;
   align-items: stretch;
 }
