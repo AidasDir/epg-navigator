@@ -277,33 +277,61 @@ class EPGPWService:
             logger.error(f"Error fetching EPG data for channel {channel_id}: {e}")
             return []
     
-    async def convert_epg_to_programs(self, epg_data: List[dict], channel_id: int) -> List[ChannelProgram]:
+    async def convert_epg_to_programs(self, epg_data: dict, channel_id: int) -> List[ChannelProgram]:
         """Convert EPG.PW data to ChannelProgram objects"""
         programs = []
         
-        for entry in epg_data:
+        # EPG.PW returns data in format: {"epg_list": [...], "name": "Channel Name", ...}
+        epg_list = epg_data.get('epg_list', [])
+        
+        for entry in epg_list:
             try:
-                # Parse start and end times
-                start_str = entry.get('start_timestamp', '')
-                duration = entry.get('duration', 3600)  # Default 1 hour
+                # Parse start time from format "20250529100000 +0000"
+                start_str = entry.get('start_date', '')
+                title = entry.get('title', 'Unknown Program')
+                description = entry.get('desc', 'No description available')
                 
                 if start_str:
-                    # Convert timestamp to datetime
-                    start_time = datetime.fromtimestamp(int(start_str), tz=pytz.timezone('America/New_York'))
-                    end_time = start_time + timedelta(seconds=duration)
+                    # Parse the datetime string "20250529100000 +0000"
+                    datetime_part = start_str.split(' ')[0]  # Get "20250529100000"
+                    year = int(datetime_part[:4])
+                    month = int(datetime_part[4:6])
+                    day = int(datetime_part[6:8])
+                    hour = int(datetime_part[8:10])
+                    minute = int(datetime_part[10:12])
+                    second = int(datetime_part[12:14])
+                    
+                    # Create datetime in UTC then convert to Eastern
+                    start_time_utc = datetime(year, month, day, hour, minute, second, tzinfo=pytz.UTC)
+                    start_time = start_time_utc.astimezone(pytz.timezone('America/New_York'))
+                    
+                    # Estimate end time (most TV shows are 30-60 minutes)
+                    if 'news' in title.lower() or 'live:' in title.lower():
+                        duration_minutes = 60  # News shows are typically 1 hour
+                    elif 'friends' in title.lower():
+                        duration_minutes = 180  # Morning shows are longer
+                    else:
+                        duration_minutes = 60  # Default 1 hour
+                    
+                    end_time = start_time + timedelta(minutes=duration_minutes)
+                    
+                    # Extract episode info if available
+                    episode = None
+                    if 'Live:' in title:
+                        title = title.replace('Live: ', '')
                     
                     # Create program
                     program = ChannelProgram(
-                        id=f"epgpw_{entry.get('id', 'unknown')}_{channel_id}",
-                        title=entry.get('title', 'Unknown Program'),
-                        episode=entry.get('episode', ''),
+                        id=f"epgpw_{channel_id}_{start_str}",
+                        title=title,
+                        episode=episode,
                         start_time=start_time,
                         end_time=end_time,
-                        description=entry.get('description', 'No description available'),
-                        image=entry.get('icon', None),
-                        rating=entry.get('rating', None),
+                        description=description,
+                        image=None,  # EPG.PW doesn't provide images in this endpoint
+                        rating=None,
                         channel_id=channel_id,
-                        genre=entry.get('category', 'General')
+                        genre='News' if 'news' in title.lower() else 'General'
                     )
                     programs.append(program)
                     
