@@ -32,13 +32,13 @@ const App = () => {
   }, []);
 
   // Fetch channels data from backend
-  const fetchChannels = useCallback(async () => {
+  const fetchChannels = useCallback(async (category = 'All') => {
     try {
       setLoading(true);
       setError(null);
       
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
-      const response = await fetch(`${backendUrl}/api/channels`);
+      const response = await fetch(`${backendUrl}/api/channels?category=${encodeURIComponent(category)}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -57,6 +57,10 @@ const App = () => {
       }));
       
       setChannels(processedChannels);
+      setCurrentCategory(category);
+      
+      // Reset grid focus when switching categories
+      setGridFocus({ channel: 0, program: 0 });
       
       // Set initial selected program
       if (processedChannels.length > 0 && processedChannels[0].programs.length > 0) {
@@ -77,6 +81,63 @@ const App = () => {
       setLoading(false);
     }
   }, []);
+
+  // Fetch user favorites
+  const fetchFavorites = useCallback(async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+      const response = await fetch(`${backendUrl}/api/favorites`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setFavorites(new Set(data.favorite_channels));
+      }
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+    }
+  }, []);
+
+  // Toggle favorite status
+  const toggleFavorite = async (channelId) => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+      const response = await fetch(`${backendUrl}/api/channels/${channelId}/favorite`, {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        const newFavorites = new Set(favorites);
+        
+        if (result.is_favorite) {
+          newFavorites.add(channelId);
+        } else {
+          newFavorites.delete(channelId);
+        }
+        
+        setFavorites(newFavorites);
+        
+        // If we're viewing favorites and removed one, refresh the list
+        if (currentCategory === 'Favorites' && !result.is_favorite) {
+          fetchChannels('Favorites');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
+  // Mark channel as recently viewed
+  const markAsRecent = async (channelId) => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+      await fetch(`${backendUrl}/api/channels/${channelId}/recent`, {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Error marking as recent:', error);
+    }
+  };
 
   // Generate fallback data in case API fails
   const generateFallbackChannels = () => {
