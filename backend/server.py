@@ -426,46 +426,54 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 @api_router.get("/channels", response_model=List[Channel])
-async def get_channels(category: str = "All"):
-    """Get channels by category with realistic EPG data"""
+async def get_channels():
+    """Get all channels with their current programming from EPG.PW"""
     try:
-        # Get channels based on category
-        if category == "Recent":
-            channels = get_recent_channels()
-        elif category == "Favorites":
-            channels = get_favorite_channels()
-        else:
-            channels = get_channels_by_category(category)
+        # Get today's date for EPG data
+        today = datetime.now().strftime("%Y%m%d")
         
-        # If no channels in category, fallback to all channels
-        if not channels:
-            channels = generate_channels_data()
+        # Get base channel data with EPG channel IDs
+        channels = generate_channels_data()
         
-        # Generate realistic EPG data for each channel
+        # Fetch real EPG data for each channel
         for channel in channels:
-            try:
-                channel.programs = await epg_service.generate_realistic_epg(channel.id, channel.name)
-                logger.info(f"Channel {channel.name} assigned {len(channel.programs)} realistic EPG programs")
-            except Exception as e:
-                logger.error(f"Error generating EPG for channel {channel.name}: {e}")
-                # Fallback to simple realistic programs
+            if channel.epg_channel_id:
+                logger.info(f"Fetching EPG data for {channel.name} (ID: {channel.epg_channel_id})")
+                
+                # Get EPG data from epg.pw
+                epg_data = await epg_pw_service.get_epg_data(channel.epg_channel_id, today)
+                
+                if epg_data:
+                    # Convert EPG data to programs
+                    programs = await epg_pw_service.convert_epg_to_programs(epg_data, channel.id)
+                    
+                    if programs:
+                        # Sort programs by start time and limit to next 8 hours
+                        now = datetime.now(pytz.timezone('America/New_York'))
+                        future_programs = [p for p in programs if p.end_time > now]
+                        sorted_programs = sorted(future_programs, key=lambda p: p.start_time)
+                        channel.programs = sorted_programs[:12]  # Next 12 programs (about 8-12 hours)
+                        
+                        logger.info(f"Loaded {len(channel.programs)} real programs for {channel.name}")
+                    else:
+                        # Fallback to realistic sample data
+                        channel.programs = generate_realistic_programs(channel.id, channel.name)
+                        logger.info(f"Using fallback data for {channel.name}")
+                else:
+                    # Fallback to realistic sample data
+                    channel.programs = generate_realistic_programs(channel.id, channel.name)
+                    logger.info(f"No EPG data found, using fallback for {channel.name}")
+            else:
+                # No EPG channel ID, use sample data
                 channel.programs = generate_realistic_programs(channel.id, channel.name)
+                logger.info(f"No EPG channel ID for {channel.name}, using sample data")
         
         return channels
         
     except Exception as e:
-        logger.error(f"Error getting channels: {e}")
+        logger.error(f"Error getting channels with EPG data: {e}")
         # Return channels with realistic sample data as fallback
-        if category == "Recent":
-            channels = get_recent_channels()
-        elif category == "Favorites":
-            channels = get_favorite_channels()
-        else:
-            channels = get_channels_by_category(category)
-            
-        if not channels:
-            channels = generate_channels_data()
-            
+        channels = generate_channels_data()
         for channel in channels:
             channel.programs = generate_realistic_programs(channel.id, channel.name)
         return channels
