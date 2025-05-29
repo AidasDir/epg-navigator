@@ -479,7 +479,13 @@ const App = () => {
               <div key={channel.id} className="channel-row">
                 {/* Channel Info */}
                 <div className="channel-info">
-                  <span className="channel-heart">♥</span>
+                  <button 
+                    className={`channel-heart ${favorites.has(channel.id) ? 'favorited' : ''}`}
+                    onClick={() => toggleFavorite(channel.id)}
+                    title={favorites.has(channel.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {favorites.has(channel.id) ? '♥' : '♡'}
+                  </button>
                   <span className="channel-number">{channel.number}</span>
                   <div className="channel-logo-container">
                     <img 
@@ -494,6 +500,7 @@ const App = () => {
                     <span className="channel-logo-fallback" style={{display: 'none'}}>{channel.logo}</span>
                   </div>
                   <span className="channel-name">{channel.name}</span>
+                  {favorites.has(channel.id) && <span className="favorite-star">⭐</span>}
                 </div>
 
                 {/* Program Blocks */}
