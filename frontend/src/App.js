@@ -198,6 +198,11 @@ const App = () => {
   };
 
   const formatTime = (date) => {
+    if (!date || !(date instanceof Date)) return '--:--:--';
+    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+  };
+
+  const formatTimeSimple = (date) => {
     if (!date || !(date instanceof Date)) return '--:--';
     return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   };
