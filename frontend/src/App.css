@@ -495,43 +495,44 @@ body {
   border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.program-block {
+.program-block-positioned {
   background: #333333;
   color: #FFFFFF;
-  padding: 8px 10px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  border: 2px solid transparent;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: absolute;
+  top: 0;
+  height: 100%;
+  min-width: 60px;
   overflow: hidden;
-  min-height: 56px;
 }
 
-.program-block.focused {
+.program-block-positioned.focused {
   background: #1976D2;
   border: 2px solid #1976D2;
   color: #FFFFFF;
   transform: scale(1.02);
-  z-index: 3;
+  z-index: 2;
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
 }
 
-.program-block.currently-airing {
+.program-block-positioned.currently-airing {
   background: #2E5C2E;
   border-left: 4px solid #4CAF50;
 }
 
-.program-block.currently-airing.focused {
+.program-block-positioned.currently-airing.focused {
   background: #1976D2;
   border: 2px solid #1976D2;
 }
 
-.program-block:hover:not(.focused) {
+.program-block-positioned:hover:not(.focused) {
   background: #444444;
-  transform: scale(1.01);
 }
 
 .program-title {
