@@ -500,15 +500,15 @@ const App = () => {
               <div className="program-details">
                 <div className="channel-info-header">
                   <img 
-                    src={getCurrentChannel().logo_url} 
-                    alt={getCurrentChannel().name}
+                    src={channels[gridFocus.channel]?.logo_url} 
+                    alt={channels[gridFocus.channel]?.name}
                     className="channel-logo-large"
                     onError={(e) => {
                       e.target.style.display = 'none';
                     }}
                   />
-                  <span className="channel-name-large">{getCurrentChannel().name}</span>
-                  <span className="channel-number-large">{getCurrentChannel().number}</span>
+                  <span className="channel-name-large">{channels[gridFocus.channel]?.name}</span>
+                  <span className="channel-number-large">{channels[gridFocus.channel]?.number}</span>
                 </div>
                 <h1 className="program-title">{selectedProgram.title}</h1>
                 <div className="program-meta">
