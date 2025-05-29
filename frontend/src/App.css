@@ -535,14 +535,14 @@ body {
   background: #444444;
 }
 
-.program-title {
-  font-size: 13px;
-  font-weight: 600;
+.program-block-positioned .program-title {
+  font-size: 12px;
+  font-weight: 500;
   text-align: left;
-  white-space: nowrap;
+  line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 2px;
+  white-space: nowrap;
 }
 
 .program-time {
