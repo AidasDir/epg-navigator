@@ -248,15 +248,15 @@ class EPGPWService:
         if self.session:
             await self.session.aclose()
     
-    async def get_epg_data(self, channel_id: int, date: str = None) -> List[dict]:
-        """Get EPG data for a specific channel and date from epg.pw"""
+    async def get_epg_data(self, channel_id: int, date: str = None) -> str:
+        """Get EPG XML data for a specific channel and date from epg.pw"""
         session = await self.get_session()
         
         if date is None:
             date = datetime.now().strftime("%Y%m%d")
         
         try:
-            url = f"{self.base_url}/epg.json"
+            url = f"{self.base_url}/epg.xml"
             params = {
                 "lang": "en",
                 "date": date,
@@ -266,16 +266,16 @@ class EPGPWService:
             response = await session.get(url, params=params)
             
             if response.status_code == 200:
-                epg_data = response.json()
-                logger.info(f"Fetched {len(epg_data)} programs for channel {channel_id} on {date}")
-                return epg_data
+                xml_data = response.text
+                logger.info(f"Fetched XML EPG data for channel {channel_id} on {date}")
+                return xml_data
             else:
                 logger.error(f"EPG.PW API error: {response.status_code} for channel {channel_id}")
-                return []
+                return ""
                 
         except Exception as e:
-            logger.error(f"Error fetching EPG data for channel {channel_id}: {e}")
-            return []
+            logger.error(f"Error fetching EPG XML data for channel {channel_id}: {e}")
+            return ""
     
     async def convert_epg_to_programs(self, epg_data: dict, channel_id: int) -> List[ChannelProgram]:
         """Convert EPG.PW data to ChannelProgram objects"""
