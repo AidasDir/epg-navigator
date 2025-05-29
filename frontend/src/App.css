@@ -308,20 +308,61 @@ body {
   margin-left: 8px;
 }
 
-/* Loading Screen */
-.loading-screen {
+/* Loading and Error Screens */
+.loading-screen, .error-screen {
   height: 100vh;
   width: 100vw;
   background: #000000;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 15px;
 }
 
-.loading-text {
+.loading-text, .error-text {
   font-size: 24px;
   color: #1976D2;
   font-weight: 500;
+}
+
+.loading-subtitle, .error-subtitle {
+  font-size: 16px;
+  color: #CCCCCC;
+  text-align: center;
+}
+
+.retry-button {
+  background: #1976D2;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background: #1565C0;
+}
+
+/* Data Source Indicator */
+.data-source {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.data-badge {
+  background: rgba(25, 118, 210, 0.8);
+  color: #FFFFFF;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
 }
 
 /* Responsive adjustments */
