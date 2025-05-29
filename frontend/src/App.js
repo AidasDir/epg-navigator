@@ -336,7 +336,7 @@ const App = () => {
                 </div>
                 <h1 className="program-title">{selectedProgram.title}</h1>
                 <div className="program-meta">
-                  {selectedProgram.episode} | {selectedProgram.title} | {formatTime(selectedProgram.startTime)} - {formatTime(selectedProgram.endTime)}
+                  {selectedProgram.episode} | {selectedProgram.title} | {formatTimeSimple(selectedProgram.startTime)} - {formatTimeSimple(selectedProgram.endTime)}
                   {isCurrentlyAiring(selectedProgram) && <span className="live-badge">● LIVE NOW</span>}
                 </div>
                 <p className="program-description">{selectedProgram.description}</p>
