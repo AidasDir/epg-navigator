@@ -278,10 +278,8 @@ const App = () => {
         case 'Enter':
           e.preventDefault();
           if (focusedSection === 'sidebar') {
-            handleTabSwitch(sidebarFocus);
-          } else if (focusedSection === 'grid' && channels[gridFocus.channel]) {
-            // Mark current channel as recently viewed
-            markAsRecent(channels[gridFocus.channel].id);
+            const selectedItem = sidebarItems[sidebarFocus];
+            handleSidebarSelection(selectedItem);
           }
           break;
           
