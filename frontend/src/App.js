@@ -467,11 +467,10 @@ const App = () => {
             <div
               key={index}
               className={`sidebar-item ${
-                focusedSection === 'sidebar' && sidebarFocus === index ? 'focused' : ''
-              } ${
-                (item === currentCategory || (item === 'Favorites ❤️' && currentCategory === 'Favorites')) ? 'active' : ''
+                (focusedSection === 'sidebar' && sidebarFocus === index) || 
+                (currentCategory === item.replace(' ❤️', '')) ? 'focused' : ''
               }`}
-              onClick={() => handleTabSwitch(index)}
+              onClick={() => handleSidebarSelection(item)}
             >
               {item}
               {item === 'Favorites ❤️' && favorites.size > 0 && (
