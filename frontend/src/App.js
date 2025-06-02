@@ -227,11 +227,12 @@ const App = () => {
           if (focusedSection === 'sidebar') {
             setSidebarFocus(prev => Math.max(0, prev - 1));
           } else if (focusedSection === 'grid') {
+            const newChannelIndex = Math.max(0, gridFocus.channel - 1);
             setGridFocus(prev => ({
               ...prev,
-              channel: Math.max(0, prev.channel - 1)
+              channel: newChannelIndex
             }));
-            updateSelectedProgram(Math.max(0, gridFocus.channel - 1), gridFocus.program);
+            updateSelectedProgram(newChannelIndex, gridFocus.program);
           }
           break;
           
@@ -240,22 +241,24 @@ const App = () => {
           if (focusedSection === 'sidebar') {
             setSidebarFocus(prev => Math.min(sidebarItems.length - 1, prev + 1));
           } else if (focusedSection === 'grid') {
+            const newChannelIndex = Math.min(channels.length - 1, gridFocus.channel + 1);
             setGridFocus(prev => ({
               ...prev,
-              channel: Math.min(channels.length - 1, prev.channel + 1)
+              channel: newChannelIndex
             }));
-            updateSelectedProgram(Math.min(channels.length - 1, gridFocus.channel + 1), gridFocus.program);
+            updateSelectedProgram(newChannelIndex, gridFocus.program);
           }
           break;
           
         case 'ArrowLeft':
           e.preventDefault();
           if (focusedSection === 'grid') {
+            const newProgramIndex = Math.max(0, gridFocus.program - 1);
             setGridFocus(prev => ({
               ...prev,
-              program: Math.max(0, prev.program - 1)
+              program: newProgramIndex
             }));
-            updateSelectedProgram(gridFocus.channel, Math.max(0, gridFocus.program - 1));
+            updateSelectedProgram(gridFocus.channel, newProgramIndex);
           } else {
             setFocusedSection('sidebar');
           }
@@ -265,13 +268,16 @@ const App = () => {
           e.preventDefault();
           if (focusedSection === 'sidebar') {
             setFocusedSection('grid');
+            // Update to current focused program when entering grid
+            updateSelectedProgram(gridFocus.channel, gridFocus.program);
           } else if (focusedSection === 'grid') {
             const maxPrograms = channels[gridFocus.channel]?.programs.length || 0;
+            const newProgramIndex = Math.min(maxPrograms - 1, gridFocus.program + 1);
             setGridFocus(prev => ({
               ...prev,
-              program: Math.min(maxPrograms - 1, prev.program + 1)
+              program: newProgramIndex
             }));
-            updateSelectedProgram(gridFocus.channel, Math.min(maxPrograms - 1, gridFocus.program + 1));
+            updateSelectedProgram(gridFocus.channel, newProgramIndex);
           }
           break;
           
