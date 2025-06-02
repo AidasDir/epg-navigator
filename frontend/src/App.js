@@ -607,6 +607,11 @@ const App = () => {
                         left: `${calculateProgramPosition(program)}px`,
                         width: `${calculateProgramWidth(program)}px`
                       }}
+                      onClick={() => {
+                        setFocusedSection('grid');
+                        setGridFocus({ channel: channelIndex, program: programIndex });
+                        updateSelectedProgram(channelIndex, programIndex);
+                      }}
                     >
                       <div className="program-title">{program.title}</div>
                       {program.rating && <div className="program-rating">⬛</div>}
