@@ -501,14 +501,35 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 @api_router.get("/channels", response_model=List[Channel])
-async def get_channels():
-    """Get all channels with their current programming from EPG.PW"""
+async def get_channels(category: Optional[str] = None):
+    """Get all channels with their current programming from EPG.PW, optionally filtered by category"""
     try:
         # Get today's date for EPG data
         today = datetime.now().strftime("%Y%m%d")
         
         # Get base channel data with EPG channel IDs
-        channels = generate_channels_data()
+        all_channels = generate_channels_data()
+        
+        # Filter channels by category if specified
+        if category and category.lower() != 'all':
+            if category.lower() == 'sports':
+                channels = [ch for ch in all_channels if ch.category == 'Sports']
+            elif category.lower() == 'kids':
+                channels = [ch for ch in all_channels if ch.category == 'Kids']
+            elif category.lower() == 'movies':
+                channels = [ch for ch in all_channels if ch.category == 'Movies']
+            elif category.lower() == 'tv shows':
+                channels = [ch for ch in all_channels if ch.category == 'TV Shows']
+            elif category.lower() == 'news':
+                channels = [ch for ch in all_channels if ch.category == 'News']
+            elif category.lower() == 'documentary':
+                channels = [ch for ch in all_channels if ch.category == 'Documentary']
+            elif category.lower() == 'lifestyle':
+                channels = [ch for ch in all_channels if ch.category == 'Lifestyle']
+            else:
+                channels = all_channels  # Default to all if unknown category
+        else:
+            channels = all_channels  # Show all channels for 'All' or no category
         
         # Fetch real EPG data for each channel
         for channel in channels:
@@ -543,12 +564,29 @@ async def get_channels():
                 channel.programs = generate_realistic_programs(channel.id, channel.name)
                 logger.info(f"No EPG channel ID for {channel.name}, using sample data")
         
+        logger.info(f"Returning {len(channels)} channels for category: {category or 'All'}")
         return channels
         
     except Exception as e:
         logger.error(f"Error getting channels with EPG data: {e}")
         # Return channels with realistic sample data as fallback
-        channels = generate_channels_data()
+        all_channels = generate_channels_data()
+        
+        # Apply same category filtering for fallback
+        if category and category.lower() != 'all':
+            if category.lower() == 'sports':
+                channels = [ch for ch in all_channels if ch.category == 'Sports']
+            elif category.lower() == 'kids':
+                channels = [ch for ch in all_channels if ch.category == 'Kids']
+            elif category.lower() == 'movies':
+                channels = [ch for ch in all_channels if ch.category == 'Movies']
+            elif category.lower() == 'tv shows':
+                channels = [ch for ch in all_channels if ch.category == 'TV Shows']
+            else:
+                channels = all_channels
+        else:
+            channels = all_channels
+            
         for channel in channels:
             channel.programs = generate_realistic_programs(channel.id, channel.name)
         return channels
