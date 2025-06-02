@@ -370,28 +370,53 @@ epg_service = EPGService()
 
 # Channel data generation
 def generate_channels_data() -> List[Channel]:
-    """Generate realistic channel data with logos and epg.pw channel IDs"""
+    """Generate realistic channel data with logos, epg.pw channel IDs, and categories"""
     channels_data = [
-        {"id": 1, "number": "2.1", "name": "FOX", "logo": "📺", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_Broadcasting_Company_Logo.svg/200px-Fox_Broadcasting_Company_Logo.svg.png", "epg_channel_id": 403858},
-        {"id": 2, "number": "4.1", "name": "NBC", "logo": "🦚", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/NBC_logo.svg/200px-NBC_logo.svg.png", "epg_channel_id": 403619},
-        {"id": 3, "number": "7.1", "name": "ABC", "logo": "🔵", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ABC-2021-LOGO.svg/200px-ABC-2021-LOGO.svg.png", "epg_channel_id": 403805},
-        {"id": 4, "number": "11.1", "name": "CBS", "logo": "👁️", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/CBS_logo.svg/200px-CBS_logo.svg.png", "epg_channel_id": 403849},
-        {"id": 5, "number": "13.1", "name": "PBS", "logo": "📚", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/PBS_logo.svg/200px-PBS_logo.svg.png", "epg_channel_id": 403469},
-        {"id": 6, "number": "24.1", "name": "ESPN", "logo": "⚽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png", "epg_channel_id": 403793},
-        {"id": 7, "number": "32.1", "name": "CNN", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/CNN.svg/200px-CNN.svg.png", "epg_channel_id": 403819},
-        {"id": 8, "number": "35.1", "name": "TNT", "logo": "💥", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/TNT_Logo_2016.svg/200px-TNT_Logo_2016.svg.png", "epg_channel_id": 403615},
-        {"id": 9, "number": "39.1", "name": "TBS", "logo": "😄", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/TBS_logo_2016.svg/200px-TBS_logo_2016.svg.png", "epg_channel_id": 403640},
-        {"id": 10, "number": "42.1", "name": "USA", "logo": "🇺🇸", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/200px-USA_Network_logo_%282016%29.svg.png", "epg_channel_id": 403626},
-        {"id": 11, "number": "45.1", "name": "Fox News", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_Broadcasting_Company_Logo.svg/200px-Fox_Broadcasting_Company_Logo.svg.png", "epg_channel_id": 403903},
-        {"id": 12, "number": "48.1", "name": "MSNBC", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/NBC_logo.svg/200px-NBC_logo.svg.png", "epg_channel_id": 403470},
-        {"id": 13, "number": "52.1", "name": "ESPN2", "logo": "⚽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png", "epg_channel_id": 403821},
-        {"id": 14, "number": "56.1", "name": "Disney Channel", "logo": "🏰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Disney_Channel_logo.svg/200px-Disney_Channel_logo.svg.png", "epg_channel_id": 403788},
-        {"id": 15, "number": "60.1", "name": "Nickelodeon", "logo": "🧽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Nickelodeon_2009_logo.svg/200px-Nickelodeon_2009_logo.svg.png", "epg_channel_id": 403620},
-        {"id": 16, "number": "64.1", "name": "Cartoon Network", "logo": "🎨", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/200px-Cartoon_Network_2010_logo.svg.png", "epg_channel_id": 403461},
-        {"id": 17, "number": "68.1", "name": "Discovery", "logo": "🔬", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Discovery_Channel_logo.svg/200px-Discovery_Channel_logo.svg.png", "epg_channel_id": 403564},
-        {"id": 18, "number": "72.1", "name": "History", "logo": "🏛️", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/History_%282021%29.svg/200px-History_%282021%29.svg.png", "epg_channel_id": 403795},
-        {"id": 19, "number": "76.1", "name": "National Geographic", "logo": "🌍", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/National_Geographic_Channel.svg/200px-National_Geographic_Channel.svg.png", "epg_channel_id": 403578},
-        {"id": 20, "number": "80.1", "name": "Food Network", "logo": "🍳", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Food_Network_logo.svg/200px-Food_Network_logo.svg.png", "epg_channel_id": 403509}
+        # Broadcast Networks
+        {"id": 1, "number": "2.1", "name": "FOX", "logo": "📺", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_Broadcasting_Company_Logo.svg/200px-Fox_Broadcasting_Company_Logo.svg.png", "epg_channel_id": 403858, "category": "General"},
+        {"id": 2, "number": "4.1", "name": "NBC", "logo": "🦚", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/NBC_logo.svg/200px-NBC_logo.svg.png", "epg_channel_id": 403619, "category": "General"},
+        {"id": 3, "number": "7.1", "name": "ABC", "logo": "🔵", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ABC-2021-LOGO.svg/200px-ABC-2021-LOGO.svg.png", "epg_channel_id": 403805, "category": "General"},
+        {"id": 4, "number": "11.1", "name": "CBS", "logo": "👁️", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/CBS_logo.svg/200px-CBS_logo.svg.png", "epg_channel_id": 403849, "category": "General"},
+        {"id": 5, "number": "13.1", "name": "PBS", "logo": "📚", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/PBS_logo.svg/200px-PBS_logo.svg.png", "epg_channel_id": 403469, "category": "General"},
+        
+        # Sports Channels
+        {"id": 6, "number": "24.1", "name": "ESPN", "logo": "⚽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png", "epg_channel_id": 403793, "category": "Sports"},
+        {"id": 13, "number": "52.1", "name": "ESPN2", "logo": "⚽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ESPN_wordmark.svg/200px-ESPN_wordmark.svg.png", "epg_channel_id": 403821, "category": "Sports"},
+        {"id": 21, "number": "84.1", "name": "FS1", "logo": "🏈", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Fox_Sports_1_logo.svg/200px-Fox_Sports_1_logo.svg.png", "epg_channel_id": 403574, "category": "Sports"},
+        {"id": 22, "number": "88.1", "name": "NFL Network", "logo": "🏈", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/NFL_Network_logo.svg/200px-NFL_Network_logo.svg.png", "epg_channel_id": 403577, "category": "Sports"},
+        
+        # News Channels
+        {"id": 7, "number": "32.1", "name": "CNN", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/CNN.svg/200px-CNN.svg.png", "epg_channel_id": 403819, "category": "News"},
+        {"id": 11, "number": "45.1", "name": "Fox News", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Fox_Broadcasting_Company_Logo.svg/200px-Fox_Broadcasting_Company_Logo.svg.png", "epg_channel_id": 403903, "category": "News"},
+        {"id": 12, "number": "48.1", "name": "MSNBC", "logo": "📰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/NBC_logo.svg/200px-NBC_logo.svg.png", "epg_channel_id": 403470, "category": "News"},
+        
+        # Kids Channels
+        {"id": 14, "number": "56.1", "name": "Disney Channel", "logo": "🏰", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Disney_Channel_logo.svg/200px-Disney_Channel_logo.svg.png", "epg_channel_id": 403788, "category": "Kids"},
+        {"id": 15, "number": "60.1", "name": "Nickelodeon", "logo": "🧽", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Nickelodeon_2009_logo.svg/200px-Nickelodeon_2009_logo.svg.png", "epg_channel_id": 403620, "category": "Kids"},
+        {"id": 16, "number": "64.1", "name": "Cartoon Network", "logo": "🎨", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Cartoon_Network_2010_logo.svg/200px-Cartoon_Network_2010_logo.svg.png", "epg_channel_id": 403461, "category": "Kids"},
+        {"id": 23, "number": "92.1", "name": "Disney Junior", "logo": "🧸", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Disney_Channel_logo.svg/200px-Disney_Channel_logo.svg.png", "epg_channel_id": 403512, "category": "Kids"},
+        
+        # Entertainment/TV Shows
+        {"id": 8, "number": "35.1", "name": "TNT", "logo": "💥", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/TNT_Logo_2016.svg/200px-TNT_Logo_2016.svg.png", "epg_channel_id": 403615, "category": "TV Shows"},
+        {"id": 9, "number": "39.1", "name": "TBS", "logo": "😄", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/TBS_logo_2016.svg/200px-TBS_logo_2016.svg.png", "epg_channel_id": 403640, "category": "TV Shows"},
+        {"id": 10, "number": "42.1", "name": "USA", "logo": "🇺🇸", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/USA_Network_logo_%282016%29.svg/200px-USA_Network_logo_%282016%29.svg.png", "epg_channel_id": 403626, "category": "TV Shows"},
+        {"id": 24, "number": "96.1", "name": "FX", "logo": "🎭", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/FX_International_logo.svg/200px-FX_International_logo.svg.png", "epg_channel_id": 403550, "category": "TV Shows"},
+        {"id": 25, "number": "100.1", "name": "AMC", "logo": "🎬", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/AMC_logo_2016.svg/200px-AMC_logo_2016.svg.png", "epg_channel_id": 403558, "category": "TV Shows"},
+        
+        # Movies Channels
+        {"id": 26, "number": "104.1", "name": "HBO", "logo": "🎭", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/HBO_logo.svg/200px-HBO_logo.svg.png", "epg_channel_id": 403800, "category": "Movies"},
+        {"id": 27, "number": "108.1", "name": "Showtime", "logo": "🎬", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Showtime.svg/200px-Showtime.svg.png", "epg_channel_id": 403801, "category": "Movies"},
+        {"id": 28, "number": "112.1", "name": "Starz", "logo": "⭐", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Starz_2016.svg/200px-Starz_2016.svg.png", "epg_channel_id": 403802, "category": "Movies"},
+        
+        # Documentary/Educational
+        {"id": 17, "number": "68.1", "name": "Discovery", "logo": "🔬", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Discovery_Channel_logo.svg/200px-Discovery_Channel_logo.svg.png", "epg_channel_id": 403564, "category": "Documentary"},
+        {"id": 18, "number": "72.1", "name": "History", "logo": "🏛️", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/History_%282021%29.svg/200px-History_%282021%29.svg.png", "epg_channel_id": 403795, "category": "Documentary"},
+        {"id": 19, "number": "76.1", "name": "National Geographic", "logo": "🌍", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/National_Geographic_Channel.svg/200px-National_Geographic_Channel.svg.png", "epg_channel_id": 403578, "category": "Documentary"},
+        
+        # Lifestyle
+        {"id": 20, "number": "80.1", "name": "Food Network", "logo": "🍳", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Food_Network_logo.svg/200px-Food_Network_logo.svg.png", "epg_channel_id": 403509, "category": "Lifestyle"},
+        {"id": 29, "number": "116.1", "name": "HGTV", "logo": "🏠", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/HGTV_US_Logo_2015.svg/200px-HGTV_US_Logo_2015.svg.png", "epg_channel_id": 403518, "category": "Lifestyle"},
+        {"id": 30, "number": "120.1", "name": "Bravo", "logo": "💃", "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Bravo_logo.svg/200px-Bravo_logo.svg.png", "epg_channel_id": 403555, "category": "Lifestyle"}
     ]
     
     return [Channel(**channel) for channel in channels_data]
