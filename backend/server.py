@@ -54,6 +54,7 @@ class Channel(BaseModel):
     logo: str
     logo_url: Optional[str] = None
     epg_channel_id: Optional[int] = None
+    category: Optional[str] = "General"
     programs: List[ChannelProgram] = []
 
 # EPG and Channel Management Service
