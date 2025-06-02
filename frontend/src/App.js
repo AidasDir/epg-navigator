@@ -38,7 +38,8 @@ const App = () => {
       setError(null);
       
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
-      const response = await fetch(`${backendUrl}/api/channels?category=${encodeURIComponent(category)}`);
+      const categoryParam = category !== 'All' ? `?category=${encodeURIComponent(category)}` : '';
+      const response = await fetch(`${backendUrl}/api/channels${categoryParam}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -57,19 +58,18 @@ const App = () => {
       }));
       
       setChannels(processedChannels);
-      setCurrentCategory(category);
-      
-      // Reset grid focus when switching categories
-      setGridFocus({ channel: 0, program: 0 });
       
       // Set initial selected program
       if (processedChannels.length > 0 && processedChannels[0].programs.length > 0) {
         setSelectedProgram(processedChannels[0].programs[0]);
       }
       
+      // Reset grid focus when changing categories
+      setGridFocus({ channel: 0, program: 0 });
+      
     } catch (error) {
       console.error('Error fetching channels:', error);
-      setError('Failed to load TV guide data');
+      setError(`Failed to load ${category} channels`);
       
       // Fallback to mock data
       const fallbackChannels = generateFallbackChannels();
