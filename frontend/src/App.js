@@ -310,6 +310,13 @@ const App = () => {
     }
   };
 
+  // Update selected program when channels change
+  useEffect(() => {
+    if (channels.length > 0 && gridFocus.channel < channels.length) {
+      updateSelectedProgram(gridFocus.channel, gridFocus.program);
+    }
+  }, [channels, gridFocus.channel, gridFocus.program]);
+
   const formatTime = (date) => {
     if (!date || !(date instanceof Date)) return '--:--:--';
     return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
