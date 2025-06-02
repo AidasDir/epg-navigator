@@ -20,6 +20,19 @@ const App = () => {
     'All', 'Recent', 'Favorites ❤️', 'Sports', 'Kids', 'Movies', 'TV Shows'
   ];
 
+  // Handle sidebar item selection
+  const handleSidebarSelection = (item) => {
+    const cleanItem = item.replace(' ❤️', ''); // Remove heart emoji for API call
+    if (cleanItem === 'Recent' || cleanItem === 'Favorites') {
+      // Handle these locally for now
+      setActiveCategory(cleanItem);
+    } else {
+      // Fetch channels for this category
+      fetchChannels(cleanItem);
+      setActiveCategory(cleanItem);
+    }
+  };
+
   const iconBarIcons = ['🔍', '🏠', '📺', '▶️', '⚙️', '💾', '🔄'];
 
   // Live clock update
