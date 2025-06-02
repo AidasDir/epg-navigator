@@ -25,11 +25,11 @@ const App = () => {
     const cleanItem = item.replace(' ❤️', ''); // Remove heart emoji for API call
     if (cleanItem === 'Recent' || cleanItem === 'Favorites') {
       // Handle these locally for now
-      setActiveCategory(cleanItem);
+      setCurrentCategory(cleanItem);
     } else {
       // Fetch channels for this category
       fetchChannels(cleanItem);
-      setActiveCategory(cleanItem);
+      setCurrentCategory(cleanItem);
     }
   };
 
